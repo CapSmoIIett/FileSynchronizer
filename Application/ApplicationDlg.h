@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+
 // Диалоговое окно CApplicationDlg
 class CApplicationDlg : public CDialogEx
 {
@@ -28,8 +29,12 @@ class CApplicationDlg : public CDialogEx
 		DECLARE_MESSAGE_MAP()
 	public:
 		afx_msg void OnEnChangeEdit1();
-		afx_msg void OnBnClickedButton3();
-		afx_msg void OnBnClickedButton1();
-		afx_msg void OnBnClickedCheck1();
-		afx_msg void OnBnClickedCheck3();
+		afx_msg void ClickedButtonFirstView();
+		CString FirstDirectoryAddress;			// Адрес директории
+		CString SecondDirectoryAddress;
+		afx_msg void ClickedButtonSecondView();
+		CListCtrl ListFirstFolder;				// Содержимое директори
+		CListCtrl ListSecondFolder;
+
+		void UpdateList(CListCtrl& list, CString folder);
 };
