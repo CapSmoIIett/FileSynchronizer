@@ -28,13 +28,17 @@ class CApplicationDlg : public CDialogEx
 		afx_msg HCURSOR OnQueryDragIcon();
 		DECLARE_MESSAGE_MAP()
 	public:
-		afx_msg void OnEnChangeEdit1();
+		afx_msg void FirstDirectoryAddressEdit();
+		afx_msg void SecondDirectoryAddressEdit();
 		afx_msg void ClickedButtonFirstView();
+		afx_msg void ClickedButtonSecondView();
+
 		CString FirstDirectoryAddress;			// Адрес директории
 		CString SecondDirectoryAddress;
-		afx_msg void ClickedButtonSecondView();
+		
 		CListCtrl ListFirstFolder;				// Содержимое директори
 		CListCtrl ListSecondFolder;
 
 		void UpdateList(CListCtrl& list, CString folder);
+		
 };

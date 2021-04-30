@@ -10,7 +10,14 @@
 #include "ApplicationDlg.h"
 #include "AboutDlg.h"
 #include "afxdialogex.h"
+#include "WFDTranslator.h"
+//#include <tchar.h>
 
+#define SIZE_COL_NAME 150
+#define SIZE_COL_TYPE 100
+#define SIZE_COL_SIZE 100
+#define SIZE_COL_DATE 110
+#define SIZE_COL_ATTR 100
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,8 +38,8 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT2, FirstDirectoryAddress);
-	DDX_Text(pDX, IDC_EDIT1, SecondDirectoryAddress);
+	DDX_Text(pDX, IDC_EDIT1, FirstDirectoryAddress);
+	DDX_Text(pDX, IDC_EDIT2, SecondDirectoryAddress);
 	DDX_Control(pDX, IDC_LIST5, ListFirstFolder);
 	DDX_Control(pDX, IDC_LIST4, ListSecondFolder);
 }
@@ -41,9 +48,11 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_EN_CHANGE(IDC_EDIT1, &CApplicationDlg::OnEnChangeEdit1)
+	ON_EN_CHANGE(IDC_EDIT1, &CApplicationDlg::FirstDirectoryAddressEdit)
+	ON_EN_CHANGE(IDC_EDIT2, &CApplicationDlg::SecondDirectoryAddressEdit)
+	
 	ON_BN_CLICKED(IDC_BUTTON1, &CApplicationDlg::ClickedButtonFirstView)
-	ON_BN_CLICKED(IDC_BUTTON2, &CApplicationDlg::ClickedButtonSecondView)
+	ON_BN_CLICKED(IDC_BUTTON2, &CApplicationDlg::ClickedButtonSecondView)	
 END_MESSAGE_MAP()
 
 
@@ -78,17 +87,17 @@ BOOL CApplicationDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Крупный значок
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
-	ListFirstFolder.InsertColumn(0, L"Имя", LVCFMT_LEFT, 50);
-	ListFirstFolder.InsertColumn(1, L"Тип", LVCFMT_LEFT, 50);
-	ListFirstFolder.InsertColumn(2, L"Размер", LVCFMT_LEFT, 60);
-	ListFirstFolder.InsertColumn(3, L"Дата", LVCFMT_LEFT, 50);
-	ListFirstFolder.InsertColumn(4, L"Атрибуты", LVCFMT_LEFT, 70);
+	ListFirstFolder.InsertColumn(0, L"Имя",		 LVCFMT_LEFT, SIZE_COL_NAME);
+	ListFirstFolder.InsertColumn(1, L"Тип",		 LVCFMT_LEFT, SIZE_COL_TYPE);
+	ListFirstFolder.InsertColumn(2, L"Размер",	 LVCFMT_LEFT, SIZE_COL_SIZE);
+	ListFirstFolder.InsertColumn(3, L"Дата",	 LVCFMT_LEFT, SIZE_COL_DATE);
+	ListFirstFolder.InsertColumn(4, L"Атрибуты", LVCFMT_LEFT, SIZE_COL_ATTR);
 
-	ListSecondFolder.InsertColumn(0, L"Имя", LVCFMT_LEFT, 50);
-	ListSecondFolder.InsertColumn(1, L"Тип", LVCFMT_LEFT, 50);
-	ListSecondFolder.InsertColumn(2, L"Размер", LVCFMT_LEFT, 60);
-	ListSecondFolder.InsertColumn(3, L"Дата", LVCFMT_LEFT, 50);
-	ListSecondFolder.InsertColumn(4, L"Атрибуты", LVCFMT_LEFT, 70);
+	ListSecondFolder.InsertColumn(0, L"Имя",	 LVCFMT_LEFT, SIZE_COL_NAME);
+	ListSecondFolder.InsertColumn(1, L"Тип",	 LVCFMT_LEFT, SIZE_COL_TYPE);
+	ListSecondFolder.InsertColumn(2, L"Размер",  LVCFMT_LEFT, SIZE_COL_SIZE);
+	ListSecondFolder.InsertColumn(3, L"Дата",	 LVCFMT_LEFT, SIZE_COL_DATE);
+	ListSecondFolder.InsertColumn(4, L"Атрибуты",LVCFMT_LEFT, SIZE_COL_ATTR);
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
@@ -144,17 +153,6 @@ HCURSOR CApplicationDlg::OnQueryDragIcon()
 
 
 
-void CApplicationDlg::OnEnChangeEdit1()
-{
-	// TODO:  Если это элемент управления RICHEDIT, то элемент управления не будет
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// функция и вызов CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Добавьте код элемента управления
-}
-
-
 void CApplicationDlg::ClickedButtonFirstView()
 {
 	CFolderPickerDialog dlg;
@@ -178,24 +176,47 @@ void CApplicationDlg::ClickedButtonSecondView()
 	UpdateData(false);		// из переменных в управление
 }
 
+
 void CApplicationDlg::UpdateList(CListCtrl& list, CString folder)
 {
-	WIN32_FIND_DATAW wfd;
+	WIN32_FIND_DATA wfd;
+	
 
 	HANDLE const hFind = FindFirstFileW(folder + L"\\*", &wfd);
 
-	if (INVALID_HANDLE_VALUE != hFind)
+	if (INVALID_HANDLE_VALUE == hFind) return;
+	
+	list.DeleteAllItems();
+
+	int i = 0;
+	
+	do
 	{
-		list.DeleteAllItems();
-		int i = 0;
-		do
-		{
-			CString name = CString(wfd.cFileName);
-			if (name == "." || name == "..") continue;
-			list.InsertItem(i++, name, -1);
-		} while (NULL != FindNextFileW(hFind, &wfd));
+		if (CString(wfd.cFileName) == "." || CString(wfd.cFileName) == "..") continue;
 
-		FindClose(hFind);
-	}
+		WFDTranslator translator(wfd);
 
+		int item = list.InsertItem(i, translator.getName(), -1);
+		list.SetItemText(item, 1, translator.getType());
+		list.SetItemText(item, 2, translator.getSize());
+		list.SetItemText(item, 3, translator.getDate());
+		list.SetItemText(item, 4, translator.getAttr());
+	} while (NULL != FindNextFileW(hFind, &wfd));
+
+	FindClose(hFind);
+}
+
+
+void CApplicationDlg::FirstDirectoryAddressEdit()
+{
+	UpdateData(true);
+	UpdateList(ListFirstFolder, FirstDirectoryAddress);
+	UpdateData(false);
+}
+
+void CApplicationDlg::SecondDirectoryAddressEdit()
+{
+	UpdateData(true);
+	UpdateList(ListSecondFolder, SecondDirectoryAddress);
+	UpdateData(false);
 }
