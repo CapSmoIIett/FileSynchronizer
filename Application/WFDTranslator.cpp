@@ -2,9 +2,11 @@
 #include "WFDTranslator.h"
 
 
-WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd)
+WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 {
 	name = CString(wfd.cFileName);
+
+	FullName = path + L"\\" + name;
 
 	int n = name.Find(L'.');
 
@@ -30,6 +32,12 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd)
 
 }
 
+CString WFDTranslator::getNameWithType() {
+	return name + L"." + type;
+}
+CString WFDTranslator::getFullName() {
+	return FullName;
+}
 CString WFDTranslator::getName() {
 	return name;
 }

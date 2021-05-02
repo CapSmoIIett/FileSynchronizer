@@ -13,8 +13,11 @@ class WFDTranslator
 {
 	public:
 		WFDTranslator() = delete;
-		WFDTranslator(WIN32_FIND_DATA);
+		WFDTranslator(WIN32_FIND_DATA, CString path = L"");
 
+		
+		CString getNameWithType();
+		CString getFullName();
 		CString getName(); 
 		CString getType();
 		CString getSize();
@@ -24,6 +27,7 @@ class WFDTranslator
 
 	private:
 		SYSTEMTIME UTC, time;
+		CString FullName;
 		CString name;
 		CString type;
 		CString size;

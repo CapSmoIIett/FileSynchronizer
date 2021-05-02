@@ -20,4 +20,4 @@ class CAboutDlg : public CDialogEx
 	// Реализация
 	protected:
 		DECLARE_MESSAGE_MAP()
-	};
+};

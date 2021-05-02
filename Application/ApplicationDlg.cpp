@@ -11,6 +11,7 @@
 #include "AboutDlg.h"
 #include "afxdialogex.h"
 #include "WFDTranslator.h"
+#include "HexEditorDlg.h"
 //#include <tchar.h>
 
 #define SIZE_COL_NAME 150
@@ -53,6 +54,9 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	
 	ON_BN_CLICKED(IDC_BUTTON1, &CApplicationDlg::ClickedButtonFirstView)
 	ON_BN_CLICKED(IDC_BUTTON2, &CApplicationDlg::ClickedButtonSecondView)	
+	ON_BN_CLICKED(IDC_BUTTON3, &CApplicationDlg::CompareFolders)
+
+	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST5, &CApplicationDlg::SelectElementFirstTable)
 END_MESSAGE_MAP()
 
 
@@ -173,7 +177,7 @@ void CApplicationDlg::ClickedButtonSecondView()
 		SecondDirectoryAddress = dlg.m_ofn.lpstrFile;
 	}
 	UpdateList(ListSecondFolder, SecondDirectoryAddress);
-	UpdateData(false);		// из переменных в управление
+	UpdateData(false);		// из переменных в управление2
 }
 
 
@@ -187,21 +191,31 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder)
 	if (INVALID_HANDLE_VALUE == hFind) return;
 	
 	list.DeleteAllItems();
+	Files.clear();
 
-	int i = 0;
+	
 	
 	do
 	{
 		if (CString(wfd.cFileName) == "." || CString(wfd.cFileName) == "..") continue;
 
-		WFDTranslator translator(wfd);
+		WFDTranslator translator(wfd, folder);
 
-		int item = list.InsertItem(i, translator.getName(), -1);
-		list.SetItemText(item, 1, translator.getType());
-		list.SetItemText(item, 2, translator.getSize());
-		list.SetItemText(item, 3, translator.getDate());
-		list.SetItemText(item, 4, translator.getAttr());
+		Files.push_back(WFDFile(translator.getFullName(), translator.getName(),
+			translator.getType(), translator.getSize(),
+			translator.getDate(), translator.getAttr()));
 	} while (NULL != FindNextFileW(hFind, &wfd));
+
+	// Можно отсортировать ветор
+
+	int i = 0;
+	for (auto file : Files) {		// Записываем в список
+		int item = list.InsertItem(i, file.name, -1);
+		list.SetItemText(item, 1, file.type);
+		list.SetItemText(item, 2, file.size);
+		list.SetItemText(item, 3, file.date);
+		list.SetItemText(item, 4, file.attr);
+	}
 
 	FindClose(hFind);
 }
@@ -219,4 +233,31 @@ void CApplicationDlg::SecondDirectoryAddressEdit()
 	UpdateData(true);
 	UpdateList(ListSecondFolder, SecondDirectoryAddress);
 	UpdateData(false);
+}
+
+
+void CApplicationDlg::CompareFolders()
+{
+	UpdateData(true);
+	//CHexEditorDlg editor(this);
+	//editor.DoModal();
+}
+
+
+
+
+void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: добавьте свой код обработчика уведомлений
+	POSITION pos = ListFirstFolder.GetFirstSelectedItemPosition();
+	if (pos == NULL) return;
+	int index = ListFirstFolder.GetNextSelectedItem(pos);
+	
+	WFDFile file = Files[Files.size() - pNMIA->iItem - 1];
+
+	CHexEditorDlg editor(file, this);
+	editor.DoModal();
+
+	*pResult = 0;
 }
