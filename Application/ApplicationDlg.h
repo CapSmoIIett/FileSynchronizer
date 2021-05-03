@@ -1,26 +1,7 @@
 ﻿#pragma once
 
 #include <vector>
-
-
-struct WFDFile {
-	CString fullName;
-	CString name;
-	CString type;
-	CString size;
-	CString date;
-	CString attr;
-
-	WFDFile() = delete;
-	WFDFile(CString f, CString n, CString t, CString s, CString d, CString a) :
-		fullName(f),
-		name(n),
-		type(t), 
-		size(s),
-		date(d),
-		attr(a)
-	{ }
-};
+#include "WFDFile.h"
 
 
 // Диалоговое окно CApplicationDlg
@@ -61,11 +42,18 @@ class CApplicationDlg : public CDialogEx
 		CListCtrl ListFirstFolder;				// Содержимое директори
 		CListCtrl ListSecondFolder;
 
-		std::vector<WFDFile> Files;
+		BOOL WithFolders;
+		BOOL WithContent;
+		BOOL WithoutDate;
+		
+		std::vector<WFDFile> FilesFirstList;
+		std::vector<WFDFile> FilesSecondList;
 
-		void UpdateList(CListCtrl& list, CString folder);
+		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
 		
 		afx_msg void CompareFolders();
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);
+		
 };

@@ -23,7 +23,7 @@ protected:
 	virtual BOOL OnInitDialog();
 
 	BOOL ReadFileHex(WFDFile, CListCtrl*);
-	CString CharToHex(char c, int size = 0);
+	BOOL ReadFileHexMapp(WFDFile, CListCtrl*);
 	CString IntToHex(int i, int size = 0);
 	CString IntToBin(int i, int size = 0);
 
