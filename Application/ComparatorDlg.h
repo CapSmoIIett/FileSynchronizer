@@ -12,11 +12,11 @@
 
 struct ComparisonResult
 {
-	WFDFile firstFile;
+	WFDFile FirstFile;
 	WFDFile SecondFile;
 	int ratio;
 	ComparisonResult(WFDFile f, WFDFile s, int r) :
-		firstFile(f),
+		FirstFile(f),
 		SecondFile(s),
 		ratio (r)
 	{	
@@ -44,11 +44,19 @@ class CComparatorDlg : public CDialogEx
 		virtual void DoDataExchange(CDataExchange* pDX);    // поддержка DDX/DDV
 		virtual BOOL OnInitDialog();
 
-		
+
+		afx_msg void ChangeCheckBoxLeftToRight();
+		afx_msg void ChangeCheckBoxEqual();
+		afx_msg void ChangeCheckNotEqual();
+		afx_msg void ChangeCheckRightToLeft();
+
+		afx_msg void SyncLeftToRight();
+		afx_msg void SyncRightToLeft();
+
+		void UpdateList();
 
 		DECLARE_MESSAGE_MAP()
 
-	public:
 		CString FirstDirectory;
 		CString SecondDirectory;
 
@@ -63,34 +71,23 @@ class CComparatorDlg : public CDialogEx
 		BOOL WithContent;
 		BOOL WithoutDate;
 
-		
+		BOOL LeftToRight;
+		BOOL Equal;
+		BOOL NotEqual;
+		BOOL RightToLeft;
 
 		std::vector<WFDFile> FilesFirstList;
 		std::vector<WFDFile> FilesSecondList;
 
 		std::vector<WFDFile> ViewDirectory(CString path);
 
+		CListCtrl List;
+
+	public:
+		
+
 		void setWithFolders(BOOL);
 		void setWithContent(BOOL);
 		void setWithoutDate(BOOL);
-
-		CListCtrl List;
-
-		BOOL LeftToRight;
-		BOOL Equal;
-		BOOL NotEqual;
-		BOOL RightToLeft;
-
-		afx_msg void ChangeCheckBoxLeftToRight();
-
-		afx_msg void ChangeCheckBoxEqual();
-
-		afx_msg void ChangeCheckNotEqual();
-
-		afx_msg void ChangeCheckRightToLeft();
-
-		void UpdateList();
-		afx_msg void SyncLeftToRight();
-		afx_msg void SyncRightToLeft();
 };
 

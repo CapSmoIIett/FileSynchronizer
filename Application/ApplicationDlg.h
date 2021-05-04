@@ -30,7 +30,8 @@ class CApplicationDlg : public CDialogEx
 		afx_msg void OnPaint();
 		afx_msg HCURSOR OnQueryDragIcon();
 		DECLARE_MESSAGE_MAP()
-	public:
+
+
 		afx_msg void FirstDirectoryAddressEdit();
 		afx_msg void SecondDirectoryAddressEdit();
 		afx_msg void ClickedButtonFirstView();
@@ -38,19 +39,19 @@ class CApplicationDlg : public CDialogEx
 
 		CString FirstDirectoryAddress;			// Адрес директории
 		CString SecondDirectoryAddress;
-		
+
 		CListCtrl ListFirstFolder;				// Содержимое директори
 		CListCtrl ListSecondFolder;
 
 		BOOL WithFolders;
 		BOOL WithContent;
 		BOOL WithoutDate;
-		
+
 		std::vector<WFDFile> FilesFirstList;
 		std::vector<WFDFile> FilesSecondList;
 
 		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
-		
+
 		afx_msg void CompareFolders();
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);

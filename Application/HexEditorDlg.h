@@ -28,7 +28,7 @@ protected:
 	CString IntToBin(int i, int size = 0);
 
 	DECLARE_MESSAGE_MAP()
-public:
+
 	CListCtrl DataTable;
 	WFDFile CurrentFile;
 };

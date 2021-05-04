@@ -1,6 +1,5 @@
 ﻿// HexEditorDlg.cpp: файл реализации
 #include <fstream>
-//#include <io>
 #include "pch.h"
 #include "Application.h"
 #include "HexEditorDlg.h"
@@ -62,7 +61,6 @@ BOOL CHexEditorDlg::OnInitDialog() {
 		SendMessage(WM_CLOSE);	// Закрываем окно
 	}
 	
-	//DestroyWindow();
 	UpdateData(false);
 	return TRUE;
 }
@@ -72,16 +70,16 @@ BOOL CHexEditorDlg::ReadFileHex(WFDFile wfdFile, CListCtrl* list)
 {
 	CFile file;
 	if (file.Open(wfdFile.fullName, CFile::modeRead | CFile::typeBinary) == 0) 
-	{
 		return FALSE;
-	}
+	
 
 	long int counter = 0;
 	long int len = _ttoi(wfdFile.size);
 	unsigned char* buffer = new unsigned char[len];
 	unsigned char  c = 0;
 
-	if (file.Read((void*)buffer, sizeof(char) * len) < len) return FALSE;
+	if (file.Read((void*)buffer, sizeof(char) * len) < len) 
+		return FALSE;
 
 	for (; counter < len; counter++) {
 

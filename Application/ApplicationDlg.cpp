@@ -197,7 +197,6 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 
 	if (INVALID_HANDLE_VALUE == handle) return;
 
-
 	list.DeleteAllItems();
 	files.clear();
 	
@@ -214,8 +213,9 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 
 	// Можно отсортировать вектор
 
+	// Записываем в список
 	int i = 0;
-	for (auto file : files) {		// Записываем в список
+	for (auto file : files) {		
 		int item = list.InsertItem(i, file.name, -1);
 		list.SetItemText(item, 1, file.type);
 		list.SetItemText(item, 2, file.size);
@@ -259,8 +259,6 @@ void CApplicationDlg::CompareFolders()
 	comparator.DoModal();
 	UpdateData(false);
 }
-
-
 
 
 void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)

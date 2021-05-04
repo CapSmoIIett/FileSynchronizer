@@ -9,7 +9,7 @@
 #include "WFDTranslator.h"
 #include <vector>
 
-#define SIZE_COL_NAME 300
+#define SIZE_COL_NAME	300
 #define SIZE_COL_STATUS 100
 
 // Диалоговое окно CComparatorDlg
@@ -82,11 +82,11 @@ void CComparatorDlg::UpdateList()
 		CString ratio;
 		int item = 0;
 
-		if (Comparasions[i].firstFile.size == L"0" &&
+		if (Comparasions[i].FirstFile.size == L"0" &&
 			Comparasions[i].SecondFile.size == L"0")
 		{
 			if (!Equal) continue;
-			item = List.InsertItem(i, Comparasions[i].firstFile.name, -1);
+			item = List.InsertItem(i, Comparasions[i].FirstFile.name, -1);
 			List.SetItemText(item, 2, Comparasions[i].SecondFile.name);
 			continue;
 		}
@@ -110,11 +110,18 @@ void CComparatorDlg::UpdateList()
 			if (!RightToLeft) continue;
 			break;
 		}
-		item = List.InsertItem(i, Comparasions[i].firstFile.name +
-			L"." + Comparasions[i].firstFile.type, -1);
+
+		CString nameOne = Comparasions[i].FirstFile.name;
+		if (nameOne == L"") nameOne = L"."; 
+		else nameOne += L"." + Comparasions[i].FirstFile.type;
+
+		CString nameTwo = Comparasions[i].FirstFile.name;
+		if (nameTwo == L"") nameTwo = L".";
+		else nameTwo += L"." + Comparasions[i].FirstFile.type;
+
+		item = List.InsertItem(i, nameOne, -1);
 		List.SetItemText(item, 1, ratio);
-		List.SetItemText(item, 2, Comparasions[i].SecondFile.name + L"." +
-			Comparasions[i].SecondFile.type);
+		List.SetItemText(item, 2, nameTwo);
 	}
 }
 
@@ -143,7 +150,7 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 		
 
 		// Проверка директории 
-		if (FirstList[i].size == L"0")		// НУЖНО ТАКОЙ ЖЕ КУСОК КОДА ТОЛЬКО ДЛЯ ДРУГОЙ ДИРЕКТОРИИ ??
+		if (FirstList[i].size == L"0")		
 		{
 			if (!WithFolders) continue;
 
@@ -215,6 +222,8 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 		// Если такой файл еще не обрабатывался
 		if (!hasAlready)
 		{
+			if (SecondList[i].size == L"0")
+				if (!WithFolders) continue;
 			result.push_back(ComparisonResult(WFDFile(firstDir), SecondList[i], RIGHTtoLEFT));	
 		}
 	}
@@ -258,42 +267,37 @@ ComparisonResult CComparatorDlg::Compare(WFDFile first, WFDFile second)
 	
 	if (WithContent)
 	{
-		// маппинг был выбран из-за необходимости быстро сравнивать файлы, т.к. их много
+		int len = _ttoi(first.size);		// Размеры одинаковы
 
-		HANDLE handleFirst = CreateFile(first.fullName, GENERIC_READ, 0, NULL,
-			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		if (handleFirst == INVALID_HANDLE_VALUE)
+		CFile fileFirst;
+		if (fileFirst.Open(first.fullName, CFile::modeRead | CFile::typeBinary) == 0)
+		{
 			return ComparisonResult(first, second, NOTEQUAL);
-		HANDLE handleSecond = CreateFile(second.fullName, GENERIC_READ, 0, NULL,
-			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		if (handleSecond == INVALID_HANDLE_VALUE)
-			return ComparisonResult(first, second, NOTEQUAL);
+		}
 
-		HANDLE mappFileFirst = CreateFileMapping(handleFirst, NULL, PAGE_READONLY, 0, 0, NULL);
-		if (mappFileFirst == NULL)
+		CFile fileSecond;
+		if (fileSecond.Open(second.fullName, CFile::modeRead | CFile::typeBinary) == 0)
+		{
 			return ComparisonResult(first, second, NOTEQUAL);
-		HANDLE mappFileSecond = CreateFileMapping(handleSecond, NULL, PAGE_READONLY, 0, 0, NULL);
-		if (mappFileSecond == NULL)
-			return ComparisonResult(first, second, NOTEQUAL);
-		
+		}
 
-		unsigned char* pointerFirst = (unsigned char*)MapViewOfFile(mappFileFirst, FILE_MAP_READ, 0, 0, 0);
-		if (pointerFirst == NULL)
+		unsigned char* pointerFirst  = new unsigned char[len];
+		unsigned char* pointerSecond = new unsigned char[len];
+
+		if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < len) 
 			return ComparisonResult(first, second, NOTEQUAL);
-		unsigned char* pointerSecond = (unsigned char*)MapViewOfFile(mappFileSecond, FILE_MAP_READ, 0, 0, 0);
-		if (pointerSecond == NULL)
+		if (fileSecond.Read((void*)pointerSecond, sizeof(char) * len) < len)
 			return ComparisonResult(first, second, NOTEQUAL);
-		
-		long int len = _ttoi(first.size);		// Размер проверялся выше по коду
-	
 
 		for (int i = 0; i < len; i++)
 			if (pointerFirst[i] != pointerSecond[i])
 			{
+				fileFirst.Close();
+				fileSecond.Close();
 				return ComparisonResult(first, second, NOTEQUAL);
 			}
-		FindClose(handleFirst);
-		FindClose(handleSecond);
+		fileFirst.Close();
+		fileSecond.Close();
 	}
 	
 	return ComparisonResult(first, second, EQUAL);
@@ -367,11 +371,11 @@ void CComparatorDlg::SyncLeftToRight()
 		case NOTEQUAL:
 			{
 				BOOL FailIfExists = FALSE;
-				CopyFile(i.firstFile.fullName, i.SecondFile.fullName, FailIfExists);
+				CopyFile(i.FirstFile.fullName, i.SecondFile.fullName, FailIfExists);
 				if (!WithoutDate)
 				{
 					// чтобы было одинаковое время последнего доступа
-					CopyFile(i.SecondFile.fullName, i.firstFile.fullName, FailIfExists);
+					CopyFile(i.SecondFile.fullName, i.FirstFile.fullName, FailIfExists);
 				}
 				break;
 			}
@@ -381,19 +385,18 @@ void CComparatorDlg::SyncLeftToRight()
 				BOOL FailIfExists = FALSE;
 				CString secondFileName;
 
-				if (i.firstFile.size == L"0")
+				if (i.FirstFile.size == L"0")
 				{
 					// копируем всю папку
-					i.firstFile.fullName += L"\\\0\0";
+					i.FirstFile.fullName += L"\\\0\0";
 					secondFileName = i.SecondFile.fullName + L"\\\0\0";
 
 					SHFILEOPSTRUCT fos = { 0 };
-					//memset(&fos, 0, sizeof(SHFILEOPSTRUCT));
 					fos.wFunc = FO_COPY;
 
 					TCHAR newFrom[MAX_PATH];
-					_tcscpy_s(newFrom, i.firstFile.fullName.GetBuffer());
-					newFrom[_tcsclen(i.firstFile.fullName.GetBuffer()) + 1] = NULL;
+					_tcscpy_s(newFrom, i.FirstFile.fullName.GetBuffer());
+					newFrom[_tcsclen(i.FirstFile.fullName.GetBuffer()) + 1] = NULL;
 					fos.pFrom = newFrom;
 
 					TCHAR newTo[MAX_PATH];
@@ -410,24 +413,25 @@ void CComparatorDlg::SyncLeftToRight()
 				if (i.SecondFile.name == L"")
 				{
 					if (i.SecondFile.fullName != L"")
-						secondFileName = i.SecondFile.fullName + "\\" + i.firstFile.name;
-					if (i.firstFile.type != L"" && i.firstFile.type != L" ")
-						secondFileName += L"." + i.firstFile.type;	
+						secondFileName = i.SecondFile.fullName + "\\" + i.FirstFile.name;
+					if (i.FirstFile.type != L"" && i.FirstFile.type != L" ")
+						secondFileName += L"." + i.FirstFile.type;	
 				}
-				CopyFile(i.firstFile.fullName, secondFileName, FailIfExists);
+				CopyFile(i.FirstFile.fullName, secondFileName, FailIfExists);
 				if (!WithoutDate)
 				{
 					// чтобы было одинаковое время последнего доступа
-					CopyFile(secondFileName, i.firstFile.fullName, FailIfExists);
+					CopyFile(secondFileName, i.FirstFile.fullName, FailIfExists);
 				}
 				break;
 			}
 			
 		}
 	}
-	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	/*Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateList();
-	UpdateData(false);
+	UpdateData(false);*/
+	SendMessage(WM_CLOSE);
 }
 
 
@@ -442,11 +446,11 @@ void CComparatorDlg::SyncRightToLeft()
 		case NOTEQUAL:
 		{
 			BOOL FailIfExists = FALSE;
-			CopyFile(i.firstFile.fullName, i.SecondFile.fullName, FailIfExists);
+			CopyFile(i.FirstFile.fullName, i.SecondFile.fullName, FailIfExists);
 			if (!WithoutDate)
 			{
 				// чтобы было одинаковое время последнего доступа
-				CopyFile(i.SecondFile.fullName, i.firstFile.fullName, FailIfExists);
+				CopyFile(i.SecondFile.fullName, i.FirstFile.fullName, FailIfExists);
 			}
 			break;
 		}
@@ -460,10 +464,9 @@ void CComparatorDlg::SyncRightToLeft()
 			{
 				// копируем всю папку
 				i.SecondFile.fullName += L"\\\0\0";
-				firstFileName = i.firstFile.fullName + L"\\\0\0";
+				firstFileName = i.FirstFile.fullName + L"\\\0\0";
 
 				SHFILEOPSTRUCT fos = { 0 };
-				//memset(&fos, 0, sizeof(SHFILEOPSTRUCT));
 				fos.wFunc = FO_COPY;
 
 				TCHAR newFrom[MAX_PATH];
@@ -482,10 +485,10 @@ void CComparatorDlg::SyncRightToLeft()
 				break;
 			}
 
-			if (i.firstFile.name == L"")
+			if (i.FirstFile.name == L"")
 			{
-				if (i.firstFile.fullName != L"")
-					firstFileName = i.firstFile.fullName + "\\" + i.SecondFile.name;
+				if (i.FirstFile.fullName != L"")
+					firstFileName = i.FirstFile.fullName + "\\" + i.SecondFile.name;
 				if (i.SecondFile.type != L"" && i.SecondFile.type != L" ")
 					firstFileName += L"." + i.SecondFile.type;
 			}
@@ -500,7 +503,5 @@ void CComparatorDlg::SyncRightToLeft()
 
 		}
 	}
-	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
-	UpdateList();
-	UpdateData(false);
+	SendMessage(WM_CLOSE);
 }

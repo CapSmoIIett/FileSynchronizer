@@ -21,19 +21,13 @@ CApplication::CApplication()
 {
 	// поддержка диспетчера перезагрузки
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
-
-	// TODO: добавьте код создания,
-	// Размещает весь важный код инициализации в InitInstance
 }
 
-
 // Единственный объект CApplication
-
 CApplication theApp;
 
 
 // Инициализация CApplication
-
 BOOL CApplication::InitInstance()
 {
 	// InitCommonControlsEx() требуется для Windows XP, если манифест
@@ -47,7 +41,6 @@ BOOL CApplication::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinApp::InitInstance();
-
 
 	AfxEnableControlContainer();
 
