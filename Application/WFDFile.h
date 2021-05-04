@@ -10,15 +10,8 @@ struct WFDFile {
 	CString date;
 	CString attr;
 
-	WFDFile() :
-		fullName(L""),
-		name(L""),
-		type(L""),
-		size(L""),
-		date(L""),
-		attr(L"")
-	{ }
-	WFDFile(CString f, CString n, CString t, CString s, CString d, CString a) :
+
+	WFDFile(CString f = L"", CString n = L"", CString t = L"", CString s = L"", CString d = L"", CString a = L"") :
 		fullName(f),
 		name(n),
 		type(t),
@@ -26,4 +19,11 @@ struct WFDFile {
 		date(d),
 		attr(a)
 	{ }
+
+	CString getPath() {
+		CString temp = name;
+		if (type != L"0") temp += L"." + type;
+		int number = fullName.Find(temp);
+		return fullName.Left(number);
+	}
 };

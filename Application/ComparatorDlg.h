@@ -49,8 +49,11 @@ class CComparatorDlg : public CDialogEx
 		DECLARE_MESSAGE_MAP()
 
 	public:
+		CString FirstDirectory;
+		CString SecondDirectory;
 
-		std::vector<ComparisonResult> CompareAll(std::vector<WFDFile>, std::vector<WFDFile>);
+		std::vector<ComparisonResult> CompareAll(std::vector<WFDFile>, std::vector<WFDFile>,
+			CString firstDir = L"", CString secondDir = L"");							// Передача строки - следствие непродуманности алгоритма 
 
 		std::vector<ComparisonResult> Comparasions;
 
@@ -60,8 +63,7 @@ class CComparatorDlg : public CDialogEx
 		BOOL WithContent;
 		BOOL WithoutDate;
 
-		CString FirstDir;
-		CString SecondDir;
+		
 
 		std::vector<WFDFile> FilesFirstList;
 		std::vector<WFDFile> FilesSecondList;
