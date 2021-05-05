@@ -75,7 +75,6 @@ BOOL CApplicationDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// Добавление пункта "О программе..." в системное меню.
-
 	// IDM_ABOUTBOX должен быть в пределах системной команды.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
@@ -215,8 +214,12 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 
 	// Записываем в список
 	int i = 0;
-	for (auto file : files) {		
-		int item = list.InsertItem(i, file.name, -1);
+	for (auto file : files) {
+		int item = 0;
+		if (file.size == L"0")
+			item = list.InsertItem(i, file.name + "\\", -1);
+		else
+			item = list.InsertItem(i, file.name, -1);
 		list.SetItemText(item, 1, file.type);
 		list.SetItemText(item, 2, file.size);
 		list.SetItemText(item, 3, file.date);
@@ -267,8 +270,17 @@ void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
 
 	WFDFile file = FilesFirstList[FilesFirstList.size() - pNMIA->iItem - 1];
 
-	CHexEditorDlg editor(file, this);
-	editor.DoModal();
+	if (file.size == L"0")
+	{
+		FirstDirectoryAddress += L"\\" + file.name;
+		UpdateList(ListFirstFolder, FirstDirectoryAddress, FilesFirstList);
+		UpdateData(false);	
+	}
+	else
+	{
+		CHexEditorDlg editor(file, this);
+		editor.DoModal();
+	}
 
 	*pResult = 0;
 }
@@ -280,9 +292,17 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 
 	WFDFile file = FilesSecondList[FilesSecondList.size() - pNMIA->iItem - 1];
 
-	CHexEditorDlg editor(file, this);
-	//editor.SetWindowTextW(file.)
-	editor.DoModal();
+	if (file.size == L"0")
+	{
+		SecondDirectoryAddress += L"\\" + file.name;
+		UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
+		UpdateData(false);
+	}
+	else
+	{
+		CHexEditorDlg editor(file, this);
+		editor.DoModal();
+	}
 
 	*pResult = 0;
 }

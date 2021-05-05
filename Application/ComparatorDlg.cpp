@@ -86,8 +86,8 @@ void CComparatorDlg::UpdateList()
 			Comparasions[i].SecondFile.size == L"0")
 		{
 			if (!Equal) continue;
-			item = List.InsertItem(i, Comparasions[i].FirstFile.name, -1);
-			List.SetItemText(item, 2, Comparasions[i].SecondFile.name);
+			item = List.InsertItem(i, Comparasions[i].FirstFile.name + L"\\", -1);
+			List.SetItemText(item, 2, Comparasions[i].SecondFile.name + L"\\");
 			continue;
 		}
 

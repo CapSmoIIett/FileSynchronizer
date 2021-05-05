@@ -8,9 +8,17 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 
 	FullName = path + L"\\" + name;
 
-	int n = name.Find(L'.');
+	int n = 0;
+	int temp = 0;
+	do
+	{
+		n = temp;
+		temp = name.Find(L'.', n + 1);
+	} while (temp != -1);
 
-	if (n == -1) {				// Если не нашли тип
+
+
+	if (n == 0) {				// Если не нашли тип
 		type = " ";
 	}
 	else {			
