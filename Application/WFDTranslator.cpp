@@ -8,14 +8,18 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 
 	FullName = path + L"\\" + name;
 
-	int n = 0;
-	int temp = 0;
-	do
-	{
-		n = temp;
-		temp = name.Find(L'.', n + 1);
-	} while (temp != -1);
+	size.Format(L"%d", ((long)wfd.nFileSizeHigh * (MAXDWORD + 1)) + wfd.nFileSizeLow);
 
+	int n = 0;
+	if (size != L"0")
+	{
+		int temp = 0;
+		do
+		{
+			n = temp;
+			temp = name.Find(L'.', n + 1);
+		} while (temp != -1);
+	}
 
 
 	if (n == 0) {				// Если не нашли тип
@@ -31,7 +35,7 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 	date.Format(L"%02d/%02d/%d %02d:%02d", time.wMonth, time.wDay, time.wYear,
 		time.wHour, time.wMinute);
 
-	size.Format(L"%d", ((long)wfd.nFileSizeHigh * (MAXDWORD + 1)) + wfd.nFileSizeLow);
+	
 
 	attr += (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? L'r' : L'-';			// Сверяем атрибуты
 	attr += (wfd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)  ? L'a' : L'-';
