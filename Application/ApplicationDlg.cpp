@@ -21,6 +21,10 @@
 #define SIZE_COL_DATE 110
 #define SIZE_COL_ATTR 100
 
+#define MAX_SIZE_PATH 32767
+
+#define NAME_OF_FILE  L"Aplication.bin"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -37,7 +41,38 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 	, WithContent(FALSE)
 	, WithoutDate(FALSE)
 {
+	CFile file;
+	int startOfSecondPath = 0;
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	if (!file.Open(NAME_OF_FILE, CFile::modeRead | CFile::typeBinary))
+	{
+		FirstDirectoryAddress  = L"";
+		SecondDirectoryAddress = L"";
+		return;
+	}
+	CString buffer;
+	file.Read((void*)buffer.GetBuffer(), MAX_SIZE_PATH * 2 + 1);	// + 1 для "\0"
+
+	startOfSecondPath = buffer.Find(L"\0");
+	FirstDirectoryAddress = buffer.Left(startOfSecondPath);
+	SecondDirectoryAddress = buffer.Right(startOfSecondPath + 1);	// + 1 для "\0"
+}
+
+CApplicationDlg::~CApplicationDlg()
+{
+	CFile file;
+
+	file.Open(NAME_OF_FILE, CFile::modeWrite | 
+		CFile::typeBinary | CFile::modeCreate);
+
+	file.Write((void*)FirstDirectoryAddress.GetBuffer(), 
+		FirstDirectoryAddress.GetLength());
+
+	file.Write((void*)'\0', 1);
+
+	file.Write((void*)SecondDirectoryAddress.GetBuffer(),
+		SecondDirectoryAddress.GetLength());
 }
 
 void CApplicationDlg::DoDataExchange(CDataExchange* pDX)

@@ -115,9 +115,9 @@ void CComparatorDlg::UpdateList()
 		if (nameOne == L"") nameOne = L"."; 
 		else nameOne += L"." + Comparasions[i].FirstFile.type;
 
-		CString nameTwo = Comparasions[i].FirstFile.name;
+		CString nameTwo = Comparasions[i].SecondFile.name;
 		if (nameTwo == L"") nameTwo = L".";
-		else nameTwo += L"." + Comparasions[i].FirstFile.type;
+		else nameTwo += L"." + Comparasions[i].SecondFile.type;
 
 		item = List.InsertItem(i, nameOne, -1);
 		List.SetItemText(item, 1, ratio);

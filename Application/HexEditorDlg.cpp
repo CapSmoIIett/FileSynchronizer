@@ -5,13 +5,17 @@
 #include "HexEditorDlg.h"
 #include "afxdialogex.h"
 
+#include <sys/stat.h>
+
 #include <stack>
 
-#define AMOUNT_COL		18		// 8 - линейка, 1 - 16-ое, 8 - 2-ое, 1 - ascii представления
-#define COL_RULER		8
-#define COL_BIN			8		
+#define AMOUNT_COL		48		// 16 - линейка, 16 - ascii представления, 16 - 16-ое
+// Подразумевается что для каждый отдел таблицы занимает одинаковый размер 
+#define COL_RULER		16
+#define COL_ASCII		16
+#define COL_HEX			16
 #define FFFFFFFF		4294967295	// 0FFFFFFFFh in dec
-#define SIZE_COL		30
+#define SIZE_COL		20
 
 // Диалоговое окно CHexEditorDlg
 
@@ -20,10 +24,34 @@ IMPLEMENT_DYNAMIC(CHexEditorDlg, CDialogEx)
 CHexEditorDlg::CHexEditorDlg(WFDFile wfd, CWnd* pParent /*=nullptr*/) :
 	CDialogEx(IDD_DIALOG1, pParent),
 	CurrentFile(wfd)
-{	}
+{	
+	handle = CreateFile(CurrentFile.fullName, GENERIC_READ, 0, NULL,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (handle == INVALID_HANDLE_VALUE)
+	{
+
+		return;
+	}
+
+	HANDLE mappFile = CreateFileMapping(handle, NULL, PAGE_READONLY, 0, 0, NULL);
+	if (mappFile == NULL)
+	{
+		CloseHandle(handle);
+		return;
+	}
+
+	pointer = (unsigned char*)MapViewOfFile(mappFile, FILE_MAP_READ, 0, 0, 0);
+	if (pointer == NULL)
+	{
+		CloseHandle(handle);
+		return;
+	}
+}
 
 CHexEditorDlg::~CHexEditorDlg()
-{	}
+{	
+	CloseHandle(handle);
+}
 
 BOOL CHexEditorDlg::OnInitDialog() {
 	CDialogEx::OnInitDialog();
@@ -45,135 +73,27 @@ BOOL CHexEditorDlg::OnInitDialog() {
 		}
 	}
 
-	for (int i = 0; i < AMOUNT_COL; i++)	// Создание колонок таблицы
-		DataTable.InsertColumn(i, L"A", LVCFMT_LEFT, SIZE_COL);
+	// Наша таблица - виртуальная (это необходимо для ускорения обработки данных)
+	
+	// Устанавливаем количество элементов
 
-	// В зависимости от размера файла выбираем спосокб его обработки
-	BOOL result; 
-	if (_ttoi(CurrentFile.size) < 10000)
-		result = ReadFileHex(CurrentFile, &DataTable);		// CFile - имеет свои обработчики которым стоит довериться
+	int amountOfRow = 0;
+
+	if (_ttoi(CurrentFile.size) % COL_RULER == 0)
+		amountOfRow = _ttoi(CurrentFile.size) / COL_RULER;
 	else
-		result = ReadFileHexMapp(CurrentFile, &DataTable);	// маппинг быстрее но я не знаю всех искдючительных ситуаций
+		amountOfRow = _ttoi(CurrentFile.size) / COL_RULER + 1;
+		
+	DataTable.SetItemCount(amountOfRow);
 
-	if (!result) 
-	{
-		// Сообщение о ошибке
-		SendMessage(WM_CLOSE);	// Закрываем окно
-	}
+	for (int i = 0; i < AMOUNT_COL; i++)	// Создание колонок таблицы
+		DataTable.InsertColumn(i, L"", LVCFMT_LEFT, SIZE_COL);
+
+	//DataTable.SetRedraw(FALSE);
 	
 	UpdateData(false);
 	return TRUE;
 }
-
-
-BOOL CHexEditorDlg::ReadFileHex(WFDFile wfdFile, CListCtrl* list) 
-{
-	CFile file;
-	if (file.Open(wfdFile.fullName, CFile::modeRead | CFile::typeBinary) == 0) 
-		return FALSE;
-	
-
-	long int counter = 0;
-	long int len = _ttoi(wfdFile.size);
-	unsigned char* buffer = new unsigned char[len];
-	unsigned char  c = 0;
-
-	if (file.Read((void*)buffer, sizeof(char) * len) < len) 
-		return FALSE;
-
-	for (; counter < len; counter++) {
-
-		int numberCol = 0;
-		int item = 0;
-
-		CString ruler;
-		CString hex;
-		CString bin;
-
-		if (counter > FFFFFFFF) break;
-		
-		c = buffer[counter];
-
-		ruler = IntToHex(counter, COL_RULER);
-		
-		item = list->InsertItem(counter, CString(ruler[numberCol++]), -1);
-
-		for (; numberCol < COL_RULER; numberCol++)
-			list->SetItemText(item, numberCol, CString(ruler[numberCol]));
-
-		hex = IntToHex(c);
-		list->SetItemText(item, numberCol++, hex);
-
-		bin = IntToBin(c, COL_BIN);
-
-		for (int i = 0; i < COL_BIN; i++)
-			list->SetItemText(item, numberCol++, CString(bin[i]));
-
-		list->SetItemText(item, numberCol, CString((char)c));	
-	}
-	delete[] buffer;
-	file.Close();
-	return true;
-}
-
-BOOL CHexEditorDlg::ReadFileHexMapp(WFDFile wfdFile, CListCtrl* list)
-{
-	HANDLE handle = CreateFile(wfdFile.fullName, GENERIC_READ, 0, NULL,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (handle == INVALID_HANDLE_VALUE) 
-	{
-		return FALSE;
-	}
-
-	HANDLE mappFile = CreateFileMapping(handle, NULL, PAGE_READONLY, 0, 0, NULL);
-	if (mappFile == NULL) 
-	{
-		return FALSE;
-	}
-
-	unsigned char* pointer = (unsigned char* )MapViewOfFile(mappFile, FILE_MAP_READ, 0, 0, 0);
-	if (pointer == NULL) 
-	{
-		return FALSE;
-	}
-
-	long int counter = 0;
-	long int len = _ttoi(wfdFile.size);
-	unsigned char c = 0;
-
-	for (; counter < len; counter++) 
-	{
-
-		int numberCol = 0;
-		int item = 0;
-
-		CString ruler;
-		CString hex;
-		CString bin;
-
-		if (counter > FFFFFFFF) break;
-
-		c = pointer[counter];
-
-		ruler = IntToHex(counter, COL_RULER);
-		item = list->InsertItem(counter, CString(ruler[numberCol++]), -1);
-		for (; numberCol < COL_RULER; numberCol++)
-			list->SetItemText(item, numberCol, CString(ruler[numberCol]));
-
-		hex = IntToHex(c);
-		list->SetItemText(item, numberCol++, hex);
-
-		bin = IntToBin(c, COL_BIN);
-
-		for (int i = 0; i < COL_BIN; i++)
-			list->SetItemText(item, numberCol++, CString(bin[i]));
-
-		list->SetItemText(item, numberCol, CString((char)c));
-	}
-	CloseHandle(handle);
-	return TRUE;
-}
-
 
 CString CHexEditorDlg::IntToHex(int number, int size)
 {
@@ -232,39 +152,6 @@ CString CHexEditorDlg::IntToHex(int number, int size)
 	return answer;
 }
 
-CString CHexEditorDlg::IntToBin(int number, int size) {
-	CString answer;
-
-	if (number < 0) 
-	{
-		number *= -1;
-	}
-
-	std::stack<char> st;
-
-	while (number > 0)
-	{
-		int n = number % 2;
-		st.push('0' + n);
-		number /= 2;
-	}
-	while (!st.empty()) 
-	{
-		answer = answer + CString(st.top());
-		st.pop();
-	}
-
-	if (size > answer.GetLength())
-	{
-		CString temp;
-		temp.Format(L"%d", 0);
-		while (size - answer.GetLength() > 0)
-		{
-			answer = temp + answer;
-		}
-	}
-	return answer;
-}
 
 void CHexEditorDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -274,52 +161,75 @@ void CHexEditorDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CHexEditorDlg, CDialogEx)
+	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST1, &CHexEditorDlg::OnGetdispinfoList)
 END_MESSAGE_MAP()
 
 
 // Обработчики сообщений CHexEditorDlg
 
-/*
-CFile file;
-	if (file.Open(wfdFile.fullName, CFile::modeRead | CFile::typeBinary | CFile::osNoBuffer) == 0) {
-		//return FALSE;
+
+
+void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;
+
+	//Create a pointer to the item
+	LV_ITEM* pItem = &(pDispInfo)->item;
+
+	//Which item number?
+	int itemid = pItem->iItem;
+
+	
+
+	unsigned char symbol = 0;
+
+	//Do the list need text information?
+	if (pItem->mask & LVIF_TEXT)
+	{
+		CString text;
+
+		// Какая кололнка 
+		if (pItem->iSubItem >= 0 &&
+			pItem->iSubItem < COL_RULER)
+		{
+			CString ruler = IntToHex(pItem->iItem, COL_RULER);
+			text = ruler[pItem->iSubItem];
+		}
+
+		if (pItem->iSubItem >= COL_RULER &&
+			pItem->iSubItem < COL_RULER + COL_ASCII)
+		{
+			int numberOfSymbol = (pItem->iItem * 16) + (pItem->iSubItem - COL_RULER);
+			if (numberOfSymbol < _ttoi(CurrentFile.size))
+			{
+				symbol = pointer[numberOfSymbol];
+				text = CString((wchar_t)symbol);
+			}
+			else
+			{
+				text = L" ";
+			}
+		}
+
+		if (pItem->iSubItem >= COL_RULER + COL_ASCII &&
+			pItem->iSubItem < COL_RULER + COL_ASCII + COL_HEX)
+		{
+			int numberOfSymbol = (pItem->iItem * 16) + (pItem->iSubItem - COL_RULER - COL_ASCII);
+			if (numberOfSymbol < _ttoi(CurrentFile.size))
+			{
+				symbol = pointer[numberOfSymbol];
+				text = IntToHex(symbol);
+			}
+			else
+			{
+				text = L" ";
+			}
+		}
+
+
+		//Copy the text to the LV_ITEM structure
+		//Maximum number of characters is in pItem->cchTextMax
+		lstrcpyn(pItem->pszText, text, pItem->cchTextMax);
 	}
-	if(file.Read((void*)&c, sizeof(char)) < 1) break;
-	file.Close();
-*/
-
-/*
-* 	WIN32_FIND_DATAW wfdW;
-	HANDLE handle = CreateFileW(wfdFile.fullName, GENERIC_READ, 0, NULL,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);//FindFirstFileW(wfdFile.fullName, &wfdW);
-
-
-	if (INVALID_HANDLE_VALUE == handle) return FALSE;
-
-	OVERLAPPED over = { 0 };
-	over.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	over.Offset = 0;
-	over.OffsetHigh = 0;
-	if (!over.hEvent) return FALSE;
-
-	if (counter > FFFF) break;
-
-		int amountRead = 0;
-
-		BYTE temp;
-
-		bool result = ReadFile(handle, &temp, sizeof(char), (LPDWORD)&amountRead, &over);
-		if (!result)
-		{
-			CloseHandle(handle);
-			return FALSE;
-		}
-		if (result && amountRead == 0)
-		{
-			CloseHandle(handle);
-			return TRUE;
-		}
-		c = temp;
-
-		CloseHandle(handle);
-*/
+	*pResult = 0;
+}

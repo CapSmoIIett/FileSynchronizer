@@ -10,6 +10,7 @@ class CApplicationDlg : public CDialogEx
 	public:
 		// Стандартный конструктор
 		CApplicationDlg(CWnd* pParent = nullptr);	
+		~CApplicationDlg();
 
 	// Данные диалогового окна
 	#ifdef AFX_DESIGN_TIME

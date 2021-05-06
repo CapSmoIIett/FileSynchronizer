@@ -30,64 +30,62 @@ class CComparatorDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CComparatorDlg)
 
-	public:
-		CComparatorDlg(std::vector<WFDFile>, std::vector<WFDFile>,
-			CString, CString, CWnd* pParent = nullptr);   // стандартный конструктор
-		virtual ~CComparatorDlg();
+	
+	void setWithFolders(BOOL);
+	void setWithContent(BOOL);
+	void setWithoutDate(BOOL);
+
+public:
+	CComparatorDlg(std::vector<WFDFile>, std::vector<WFDFile>,
+		CString, CString, CWnd* pParent = nullptr);   // стандартный конструктор
+	virtual ~CComparatorDlg();
 
 	// Данные диалогового окна
-	#ifdef AFX_DESIGN_TIME
-		enum { IDD = IDD_DIALOG2 };
-	#endif
+#ifdef AFX_DESIGN_TIME
+	enum { IDD = IDD_DIALOG2 };
+#endif
 
-	protected:
-		virtual void DoDataExchange(CDataExchange* pDX);    // поддержка DDX/DDV
-		virtual BOOL OnInitDialog();
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // поддержка DDX/DDV
+	virtual BOOL OnInitDialog();
 
 
-		afx_msg void ChangeCheckBoxLeftToRight();
-		afx_msg void ChangeCheckBoxEqual();
-		afx_msg void ChangeCheckNotEqual();
-		afx_msg void ChangeCheckRightToLeft();
+	afx_msg void ChangeCheckBoxLeftToRight();
+	afx_msg void ChangeCheckBoxEqual();
+	afx_msg void ChangeCheckNotEqual();
+	afx_msg void ChangeCheckRightToLeft();
 
-		afx_msg void SyncLeftToRight();
-		afx_msg void SyncRightToLeft();
+	afx_msg void SyncLeftToRight();
+	afx_msg void SyncRightToLeft();
 
-		void UpdateList();
+	void UpdateList();
 
-		DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-		CString FirstDirectory;
-		CString SecondDirectory;
+	CString FirstDirectory;
+	CString SecondDirectory;
 
-		std::vector<ComparisonResult> CompareAll(std::vector<WFDFile>, std::vector<WFDFile>,
-			CString firstDir = L"", CString secondDir = L"");							// Передача строки - следствие непродуманности алгоритма 
+	std::vector<ComparisonResult> CompareAll(std::vector<WFDFile>, std::vector<WFDFile>,
+		CString firstDir = L"", CString secondDir = L"");							// Передача строки - следствие непродуманности алгоритма 
 
-		std::vector<ComparisonResult> Comparasions;
+	std::vector<ComparisonResult> Comparasions;
 
-		ComparisonResult Compare(WFDFile, WFDFile);
+	ComparisonResult Compare(WFDFile, WFDFile);
 
-		BOOL WithFolders;
-		BOOL WithContent;
-		BOOL WithoutDate;
+	BOOL WithFolders;
+	BOOL WithContent;
+	BOOL WithoutDate;
 
-		BOOL LeftToRight;
-		BOOL Equal;
-		BOOL NotEqual;
-		BOOL RightToLeft;
+	BOOL LeftToRight;
+	BOOL Equal;
+	BOOL NotEqual;
+	BOOL RightToLeft;
 
-		std::vector<WFDFile> FilesFirstList;
-		std::vector<WFDFile> FilesSecondList;
+	std::vector<WFDFile> FilesFirstList;
+	std::vector<WFDFile> FilesSecondList;
 
-		std::vector<WFDFile> ViewDirectory(CString path);
+	std::vector<WFDFile> ViewDirectory(CString path);
 
-		CListCtrl List;
-
-	public:
-		
-
-		void setWithFolders(BOOL);
-		void setWithContent(BOOL);
-		void setWithoutDate(BOOL);
+	CListCtrl List;
 };
 
