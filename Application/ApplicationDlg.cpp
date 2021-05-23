@@ -47,12 +47,6 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 	int startOfSecondPath = 0;
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);//L"res\\Application"
 
-	//HICON Icon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(MAIN_ICON)); //
-	//SendMessage(, WM_SETICON, 1, (LPARAM)Icon);
-	//SetIcon(m_hIcon, FALSE);
-	//SetIcon(newIcon, TRUE);					// Установить икону
-
-
 	if (!file.Open(NAME_OF_FILE, CFile::modeRead | CFile::typeBinary))
 	{
 		FirstDirectoryAddress  = L"";
@@ -376,4 +370,13 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 
 	*pResult = 0;
+}
+
+
+BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) {
+	if (pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_ESCAPE)  return TRUE;
+		if (pMsg->wParam == VK_RETURN)  return TRUE;
+	}
+	return CDialog::PreTranslateMessage(pMsg);
 }

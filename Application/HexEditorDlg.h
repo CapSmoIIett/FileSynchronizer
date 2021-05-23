@@ -33,4 +33,6 @@ protected:
 	unsigned char* pointer;
 
 	afx_msg void OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult);
+
+	BOOL PreTranslateMessage(MSG* pMsg);		// Обработчик нажатий(убирает реакцию на Enter и Esc)
 };

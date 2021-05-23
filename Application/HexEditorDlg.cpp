@@ -233,3 +233,11 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 	*pResult = 0;
 }
+
+BOOL CHexEditorDlg::PreTranslateMessage(MSG* pMsg) {
+	if (pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_ESCAPE)  return TRUE;
+		if (pMsg->wParam == VK_RETURN)  return TRUE;
+	}
+	return CDialog::PreTranslateMessage(pMsg);
+}

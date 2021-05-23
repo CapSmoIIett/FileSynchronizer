@@ -57,5 +57,6 @@ class CApplicationDlg : public CDialogEx
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);
-		
+	
+		BOOL PreTranslateMessage(MSG* pMsg);		// Обработчик нажатий (для отключения Enter и Esc)
 };
