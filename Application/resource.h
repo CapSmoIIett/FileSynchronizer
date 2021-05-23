@@ -24,6 +24,8 @@
 #define IDC_LIST1                       1013
 #define IDC_LIST2                       1017
 
+//#define MAIN_ICON                       129
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

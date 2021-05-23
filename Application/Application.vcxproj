@@ -216,7 +216,10 @@
     <None Include="res\Application.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\App.ico" />
     <Image Include="res\Application.ico" />
+    <Image Include="res\Application.png" />
+    <Image Include="res\icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

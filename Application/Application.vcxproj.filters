@@ -86,5 +86,14 @@
     <Image Include="res\Application.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
+    <Image Include="res\Application.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="res\App.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="res\icon1.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
 </Project>

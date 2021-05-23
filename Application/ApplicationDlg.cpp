@@ -23,6 +23,8 @@
 
 #define MAX_SIZE_PATH 32767
 
+#define SEPARATOR_CHARACTER L"*"
+
 #define NAME_OF_FILE  L"Aplication.bin"
 
 #ifdef _DEBUG
@@ -43,7 +45,13 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 {
 	CFile file;
 	int startOfSecondPath = 0;
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);//L"res\\Application"
+
+	//HICON Icon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(MAIN_ICON)); //
+	//SendMessage(, WM_SETICON, 1, (LPARAM)Icon);
+	//SetIcon(m_hIcon, FALSE);
+	//SetIcon(newIcon, TRUE);					// Установить икону
+
 
 	if (!file.Open(NAME_OF_FILE, CFile::modeRead | CFile::typeBinary))
 	{
@@ -51,10 +59,14 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 		SecondDirectoryAddress = L"";
 		return;
 	}
-	CString buffer;
-	file.Read((void*)buffer.GetBuffer(), MAX_SIZE_PATH * 2 + 1);	// + 1 для "\0"
 
-	startOfSecondPath = buffer.Find(L"\0");
+	CW2A bufferCA2W(L"");
+	
+	//file.Read((void*)bufferCA2W, MAX_SIZE_PATH * 2 + 1);	// + 1 для "\0"
+
+	CString buffer (CA2CT(bufferCA2W, CP_UTF8));
+
+	startOfSecondPath = buffer.Find(SEPARATOR_CHARACTER);
 	FirstDirectoryAddress = buffer.Left(startOfSecondPath);
 	SecondDirectoryAddress = buffer.Right(startOfSecondPath + 1);	// + 1 для "\0"
 }
@@ -64,15 +76,39 @@ CApplicationDlg::~CApplicationDlg()
 	CFile file;
 
 	file.Open(NAME_OF_FILE, CFile::modeWrite | 
-		CFile::typeBinary | CFile::modeCreate);
+		CFile::typeBinary | CFile::modeCreate | CFile::shareDenyWrite);
 
-	file.Write((void*)FirstDirectoryAddress.GetBuffer(), 
-		FirstDirectoryAddress.GetLength());
 
-	file.Write((void*)'\0', 1);
+	int len = FirstDirectoryAddress.GetLength();
 
-	file.Write((void*)SecondDirectoryAddress.GetBuffer(),
-		SecondDirectoryAddress.GetLength());
+	
+
+	if (FirstDirectoryAddress.IsEmpty())
+	{
+		CT2CA outputString(L" ", CP_UTF8);
+		file.Write(outputString, 1);
+	}
+	else
+	{
+		CT2CA outputString(FirstDirectoryAddress, CP_UTF8);
+		file.Write(outputString, strlen(outputString));
+	}
+
+	{	// Записываем разделитель
+		CT2CA outputString(SEPARATOR_CHARACTER, CP_UTF8);
+		file.Write(outputString, 1);		// * - запрещенна для использования в имени файла
+	}
+
+	if (SecondDirectoryAddress.IsEmpty())
+	{
+		CT2CA outputString(L" ", CP_UTF8);
+		file.Write(outputString, 1);
+	}
+	else
+	{
+		CT2CA outputString(SecondDirectoryAddress, CP_UTF8);
+		file.Write(outputString, strlen(outputString));
+	}
 }
 
 void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
