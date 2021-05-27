@@ -77,7 +77,7 @@ BOOL CComparatorDlg::OnInitDialog()
 void CComparatorDlg::UpdateList()
 {
 	List.DeleteAllItems();
-	for (int i = 0; i < Comparasions.size(); i++)
+	for (int i = 0; (size_t)i < Comparasions.size(); i++)
 	{
 		CString ratio;
 		int item = 0;
@@ -144,7 +144,7 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 
 	std::vector<ComparisonResult> result;
 
-	for (int i = 0; i < FirstList.size(); i++)
+	for (int i = 0; (size_t)i < FirstList.size(); i++)
 	{
 		BOOL isAdd = FALSE;
 		
@@ -158,7 +158,7 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 
 			// Поиск одноименной директории
 			int element = 0;
-			for (; element < SecondList.size(); element++)
+			for (; (size_t)element < SecondList.size(); element++)
 				if (FirstList[i].name == SecondList[element].name)
 					if (FirstList[i].size == SecondList[element].size)
 					{
@@ -184,7 +184,7 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 			// Сравниваем директории 
 			std::vector<ComparisonResult> temp = CompareAll(filesFirst, filesSecond, 
 				FirstList[i].fullName, SecondList[element].fullName);
-			for (int j = 0; j < temp.size(); j++)
+			for (int j = 0; (size_t)j < temp.size(); j++)
 			{
 				result.push_back(temp[j]);
 			}
@@ -194,7 +194,7 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 		
 		// Сравнение идентичных файлов
 		if (!isAdd)
-			for (int j = 0; j < SecondList.size(); j++)
+			for (int j = 0; (size_t)j < SecondList.size(); j++)
 				if (FirstList[i].name == SecondList[j].name)
 					if (FirstList[i].type == SecondList[j].type)
 					{
@@ -207,11 +207,11 @@ std::vector<ComparisonResult> CComparatorDlg::CompareAll(std::vector<WFDFile> Fi
 		if (!isAdd)
 			result.push_back(ComparisonResult(FirstList[i], WFDFile(secondDir), LEFTtoRIGHT));
 	}
-	for (int i = 0; i < SecondList.size(); i++)
+	for (int i = 0; (size_t)i < SecondList.size(); i++)
 	{
 		bool hasAlready = false;
 		
-		for (int j = 0; j < result.size(); j++)
+		for (int j = 0; (size_t)j < result.size(); j++)
 		{
 			if (SecondList[i].fullName == result[j].SecondFile.fullName)
 			{
@@ -284,9 +284,9 @@ ComparisonResult CComparatorDlg::Compare(WFDFile first, WFDFile second)
 		unsigned char* pointerFirst  = new unsigned char[len];
 		unsigned char* pointerSecond = new unsigned char[len];
 
-		if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < len) 
+		if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < (size_t)len)
 			return ComparisonResult(first, second, NOTEQUAL);
-		if (fileSecond.Read((void*)pointerSecond, sizeof(char) * len) < len)
+		if (fileSecond.Read((void*)pointerSecond, sizeof(char) * len) < (size_t)len)
 			return ComparisonResult(first, second, NOTEQUAL);
 
 		for (int i = 0; i < len; i++)
