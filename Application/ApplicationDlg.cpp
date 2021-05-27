@@ -15,6 +15,14 @@
 #include "ComparatorDlg.h"
 //#include <tchar.h>
 
+#include <fstream>
+#include <locale>
+#include <codecvt>
+#include <fstream>
+#include <iostream>
+#include <io.h>
+#include <fcntl.h>
+
 #define SIZE_COL_COMP 30
 #define SIZE_COL_NAME 150
 #define SIZE_COL_TYPE 100
@@ -28,7 +36,7 @@
 #define NAME_OF_FILE  L"Aplication.bin"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
+//#define new DEBUG_NEW
 #endif
 
 
@@ -53,69 +61,67 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 	// Установка иконки
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);//L"res\\Application"
 
+
 	// Чтение из файла
-	if (!file.Open(NAME_OF_FILE, CFile::modeRead | CFile::typeBinary))
+	try
 	{
-		FirstDirectoryAddress  = L"";
-		SecondDirectoryAddress = L"";
-		return;
+		wchar_t buf[MAX_SIZE_PATH * 2 + 1];
+		const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+		
+		std::wifstream f(NAME_OF_FILE, std::ios::binary);
+		f.imbue(utf8_locale);
+		
+		f >> buf;
+		
+		f.close();
+
+		CString buffer(buf);
+
+		startOfSecondPath = buffer.Find(SEPARATOR_CHARACTER);
+		if (startOfSecondPath == -1)
+			return;
+		if (startOfSecondPath != 0)
+			FirstDirectoryAddress = buffer.Left(startOfSecondPath);
+		if ((size_t)startOfSecondPath != buffer.GetLength() - 1)
+			SecondDirectoryAddress = buffer.Right(buffer.GetLength() - 
+				(size_t)startOfSecondPath - 1);	// - 1 для SEPARATOR_CHARACTER
+
+		// проверка на существование директорий
+		DWORD fileAttrFirst = GetFileAttributes(FirstDirectoryAddress);
+		if (fileAttrFirst == 0xFFFFFFFF)	
+			FirstDirectoryAddress = L"";
+		DWORD fileAttrSecond = GetFileAttributes(SecondDirectoryAddress);
+		if (fileAttrSecond == 0xFFFFFFFF)	
+			SecondDirectoryAddress = L"";
+		
+
 	}
-
-	CW2A bufferCA2W(L"");
-	
-	//file.Read((void*)bufferCA2W, MAX_SIZE_PATH * 2 + 1);	// + 1 для "\0"
-
-	CString buffer (CA2CT(bufferCA2W, CP_UTF8));
-
-	startOfSecondPath = buffer.Find(SEPARATOR_CHARACTER);
-	FirstDirectoryAddress = buffer.Left(startOfSecondPath);
-	SecondDirectoryAddress = buffer.Right(startOfSecondPath + 1);	// + 1 для "\0"
+	catch (...)
+	{
+		FirstDirectoryAddress = L"";
+		SecondDirectoryAddress = L"";
+	}
 }
 
 CApplicationDlg::~CApplicationDlg()
 {
-	CFile file;
+	const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+	std::wofstream f(NAME_OF_FILE, std::ios::binary | std::ios::trunc);
+	f.imbue(utf8_locale);
 
-	file.Open(NAME_OF_FILE, CFile::modeWrite | 
-		CFile::typeBinary | CFile::modeCreate | CFile::shareDenyWrite);
-
-
-	int len = FirstDirectoryAddress.GetLength();
-
-	
-	CA2W russianTextAsUtf16("Текст Text", 20866);
-	CW2A russianTextAsUtf8(russianTextAsUtf16, CP_UTF8);
-
-	file.Write(russianTextAsUtf8, sizeof(russianTextAsUtf8));
-
-	return;
-
-	if (FirstDirectoryAddress.IsEmpty())
+	if (!FirstDirectoryAddress.IsEmpty())
 	{
-		CT2CA outputString(L" ", CP_UTF8);
-		file.Write(outputString, 1);
-	}
-	else
-	{
-		CT2CA outputString(FirstDirectoryAddress, CP_UTF8);
-		file.Write(outputString, strlen(outputString));
+		f << FirstDirectoryAddress.GetBuffer();
 	}
 
-	{	// Записываем разделитель
-		CT2CA outputString(SEPARATOR_CHARACTER, CP_UTF8);
-		file.Write(outputString, 1);		// * - запрещенна для использования в имени файла
+	f << SEPARATOR_CHARACTER;
+
+	if (!SecondDirectoryAddress.IsEmpty())
+	{
+		f << SecondDirectoryAddress.GetBuffer();
 	}
 
-	if (SecondDirectoryAddress.IsEmpty())
-	{
-		CT2CA outputString(L" ", CP_UTF8);
-		file.Write(outputString, 1);
-	}
-	else
-	{
-		CT2CA outputString(SecondDirectoryAddress, CP_UTF8);
-		file.Write(outputString, strlen(outputString));
-	}
+	f.close();
 }
 
 void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
@@ -154,8 +160,6 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST5, &CApplicationDlg::BeginScrollListFirst)
 	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST4, &CApplicationDlg::BeginScrollListSecond)
 	
-	ON_NOTIFY(LVN_ENDSCROLL, IDC_LIST5, &CApplicationDlg::EndScrollListFirst)
-	ON_NOTIFY(LVN_ENDSCROLL, IDC_LIST4, &CApplicationDlg::EndScrollListSecond)
 END_MESSAGE_MAP()
 
 
@@ -214,6 +218,8 @@ BOOL CApplicationDlg::OnInitDialog()
 	ListSecondFolder.InsertColumn(2, L"Размер",  LVCFMT_LEFT, SIZE_COL_SIZE);
 	ListSecondFolder.InsertColumn(3, L"Дата",	 LVCFMT_LEFT, SIZE_COL_DATE);
 	ListSecondFolder.InsertColumn(4, L"Атрибуты",LVCFMT_LEFT, SIZE_COL_ATTR);
+
+	UpdateAll();
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
@@ -337,21 +343,3 @@ int CApplicationDlg::GetItemHeight(CListCtrl& list)
 	return ItemRect.bottom - ItemRect.top;
 }
 
-void CApplicationDlg::EndScrollListFirst(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	// Для этого средства требуется Internet Explorer 5.5 или более поздняя версия.
-	// Символ _WIN32_IE должен быть >= 0x0560.
-	LPNMLVSCROLL pStateChanged = reinterpret_cast<LPNMLVSCROLL>(pNMHDR);
-	// TODO: добавьте свой код обработчика уведомлений
-	*pResult = 0;
-}
-
-
-void CApplicationDlg::EndScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	// Для этого средства требуется Internet Explorer 5.5 или более поздняя версия.
-	// Символ _WIN32_IE должен быть >= 0x0560.
-	LPNMLVSCROLL pStateChanged = reinterpret_cast<LPNMLVSCROLL>(pNMHDR);
-	// TODO: добавьте свой код обработчика уведомлений
-	*pResult = 0;
-}

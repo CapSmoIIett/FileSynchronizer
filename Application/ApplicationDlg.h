@@ -112,8 +112,4 @@ class CApplicationDlg : public CDialogEx
 		// Результаты сравнения
 		std::vector<ComparisonResult> Comparasions;
 	
-
-public:
-	afx_msg void EndScrollListFirst(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void EndScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult);
 };
