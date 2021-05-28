@@ -204,15 +204,15 @@ void CApplicationDlg::UpdateComparisonList(int begin)
 			ratio = L"!=";
 			if (!NotEqual) continue;
 			break;
-		case 0:
+		case EQUAL:
 			ratio = L"=";
 			if (!Equal) continue;
 			break;
-		case 2:
+		case LEFTtoRIGHT:
 			ratio = L"=>";
 			if (!LeftToRight) continue;
 			break;
-		case 3:
+		case RIGHTtoLEFT:
 			ratio = L"<=";
 			if (!RightToLeft) continue;
 			break;

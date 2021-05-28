@@ -99,16 +99,19 @@ void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
 	//WFDFile file = FilesFirstList[FilesFirstList.size() - pNMIA->iItem - 1];
 	WFDFile file = FilesFirstList[pNMIA->iItem];
 
-	if (file.size == L"0")
+	if (!ReadyToSync)
 	{
-		FirstDirectoryAddress += L"\\" + file.name;
-		UpdateAll();
-		UpdateData(false);
-	}
-	else
-	{
-		CHexEditorDlg editor(file, this);
-		editor.DoModal();
+		if (file.size == L"0")
+		{
+			FirstDirectoryAddress += L"\\" + file.name;
+			UpdateAll();
+			UpdateData(false);
+		}
+		else
+		{
+			CHexEditorDlg editor(file, this);
+			editor.DoModal();
+		}
 	}
 
 	*pResult = 0;
@@ -121,16 +124,19 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 	//WFDFile file = FilesSecondList[FilesSecondList.size() - pNMIA->iItem - 1];
 	WFDFile file = FilesSecondList[pNMIA->iItem];
 
-	if (file.size == L"0")
+	if (!ReadyToSync)
 	{
-		SecondDirectoryAddress += L"\\" + file.name;
-		UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
-		UpdateData(false);
-	}
-	else
-	{
-		CHexEditorDlg editor(file, this);
-		editor.DoModal();
+		if (file.size == L"0")
+		{
+			SecondDirectoryAddress += L"\\" + file.name;
+			UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
+			UpdateData(false);
+		}
+		else
+		{
+			CHexEditorDlg editor(file, this);
+			editor.DoModal();
+		}
 	}
 
 	*pResult = 0;
@@ -242,4 +248,29 @@ void CApplicationDlg::BeginScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult)
 		ScrollMutex = NOBODY_SCROLL;
 	}
 	*pResult = 0;
+}
+
+void CApplicationDlg::ChangeCheckBoxLeftToRight()
+{
+	LeftToRight = !LeftToRight;
+	UpdateAll(ReadyToSync);
+
+}
+
+void CApplicationDlg::ChangeCheckBoxEqual()
+{
+	Equal = !Equal;
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::ChangeCheckNotEqual()
+{
+	NotEqual = !NotEqual;
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::ChangeCheckRightToLeft()
+{
+	RightToLeft = !RightToLeft;
+	UpdateAll(ReadyToSync);
 }

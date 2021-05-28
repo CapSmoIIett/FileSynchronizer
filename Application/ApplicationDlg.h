@@ -52,9 +52,10 @@ class CApplicationDlg : public CDialogEx
 
 		afx_msg void CompareFolders();
 
-		void insertInList(CListCtrl& list, WFDFile file, int number);
+		
 		// Обновление списка файлов
 		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
+		void insertInList(CListCtrl& list, WFDFile file, int number, CString path = L"");
 		void UpdateComparisonList(int begin = 0);
 
 		void UpdateAll(BOOL ready = 0);
@@ -111,5 +112,10 @@ class CApplicationDlg : public CDialogEx
 
 		// Результаты сравнения
 		std::vector<ComparisonResult> Comparasions;
-	
+	 
+public:
+	afx_msg void ChangeCheckBoxLeftToRight();
+	afx_msg void ChangeCheckBoxEqual();
+	afx_msg void ChangeCheckNotEqual();
+	afx_msg void ChangeCheckRightToLeft();
 };

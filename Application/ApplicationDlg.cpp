@@ -160,6 +160,10 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST5, &CApplicationDlg::BeginScrollListFirst)
 	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST4, &CApplicationDlg::BeginScrollListSecond)
 	
+	ON_BN_CLICKED(IDC_CHECK4, &CApplicationDlg::ChangeCheckBoxLeftToRight)
+	ON_BN_CLICKED(IDC_CHECK5, &CApplicationDlg::ChangeCheckBoxEqual)
+	ON_BN_CLICKED(IDC_CHECK6, &CApplicationDlg::ChangeCheckNotEqual)
+	ON_BN_CLICKED(IDC_CHECK7, &CApplicationDlg::ChangeCheckRightToLeft)
 END_MESSAGE_MAP()
 
 
@@ -237,8 +241,22 @@ void CApplicationDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 }
 
-void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number)
+void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CString path)
 {
+	CString folder = L"";
+	if (path != L"")
+	{
+		BOOL flag = 1;
+		int i = 0;
+		for (; (size_t)i < path.GetLength(); i++)
+			if (path[i] != file.fullName[i]) flag = 0;
+		if (flag)
+		{
+			CString temp = file.getPath();
+			folder = temp.Right(temp.GetLength() - i - 1);
+		}
+	}
+
 	int item = 0;
 	if (file.size == L"0")
 	{
@@ -246,7 +264,7 @@ void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number)
 	}
 	else
 	{
-		item = list.InsertItem(number, file.name, -1);
+		item = list.InsertItem(number, folder + file.name, -1);
 	}
 	list.SetItemText(item, 1, file.type);
 	list.SetItemText(item, 2, file.size);
@@ -296,8 +314,7 @@ BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) {
 		}
 		if (pMsg->wParam == VK_RETURN)											// Нажате на Enter
 		{
-			UpdateList(ListFirstFolder, FirstDirectoryAddress, FilesFirstList);
-			UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
+			UpdateAll();
 			return TRUE;
 		}
 	}
@@ -317,9 +334,42 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 
 		int i = 0;
 		for (auto file : Comparasions)
-		{
-			insertInList(ListFirstFolder, file.FirstFile, i);
-			insertInList(ListSecondFolder, file.SecondFile, i);
+		{	
+			if (file.FirstFile.size == L"0" &&
+				file.SecondFile.size == L"0")
+			{
+				insertInList(ListFirstFolder, file.FirstFile, i);
+				insertInList(ListSecondFolder, file.SecondFile, i);
+				i++;
+				continue;
+			}
+			
+			switch (file.ratio)
+			{
+			case LEFTtoRIGHT:	
+			{
+				if (!LeftToRight) continue;
+				break;
+			}
+			case EQUAL:			
+			{
+				if (!Equal) continue;
+				break;
+			}
+			case NOTEQUAL:		
+			{
+				if (!NotEqual) continue;
+				break;
+			}
+			case RIGHTtoLEFT:	
+			{
+				if (!RightToLeft) continue;
+				break;
+			}
+			}
+
+			insertInList(ListFirstFolder, file.FirstFile, i, FirstDirectoryAddress);
+			insertInList(ListSecondFolder, file.SecondFile, i, SecondDirectoryAddress);
 			i++;
 		}
 	}
@@ -342,4 +392,6 @@ int CApplicationDlg::GetItemHeight(CListCtrl& list)
 	list.GetSubItemRect(1, 1, LVIR_BOUNDS, ItemRect);
 	return ItemRect.bottom - ItemRect.top;
 }
+
+
 

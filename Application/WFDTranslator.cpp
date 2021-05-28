@@ -30,7 +30,8 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 		name = name.Left(n);
 	}
 
-	FileTimeToSystemTime(&wfd.ftLastAccessTime, &UTC);
+	//FileTimeToSystemTime(&wfd.ftLastAccessTime, &UTC);
+	FileTimeToSystemTime(&wfd.ftCreationTime, &UTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &UTC, &time);
 	date.Format(L"%02d/%02d/%d %02d:%02d", time.wMonth, time.wDay, time.wYear,
 		time.wHour, time.wMinute);
