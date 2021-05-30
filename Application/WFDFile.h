@@ -22,7 +22,8 @@ struct WFDFile {
 		attr(a)
 	{ }
 
-	CString getPath() {
+	CString getPath() 
+	{
 		CString temp = name;
 		if (type != L"0") temp += L"." + type;
 		int number = fullName.Find(temp);

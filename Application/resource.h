@@ -31,8 +31,6 @@
 #define IDC_LIST6                       1018
 #define IDC_BUTTON4                     1020
 #define SYNC_BUTTON                     1020
-#define IDC_SCROLLBAR2                  1024
-#define IDC_SCROLLBAR3                  1025
 
 // Next default values for new objects
 // 

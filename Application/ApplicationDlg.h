@@ -31,27 +31,37 @@ class CApplicationDlg : public CDialogEx
 	protected:
 		HICON m_hIcon;
 
-		// Созданные функции схемы сообщений
+		// Функции схемы сообщений
 		virtual BOOL OnInitDialog();
 		afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 		afx_msg void OnPaint();
 		afx_msg HCURSOR OnQueryDragIcon();
-		DECLARE_MESSAGE_MAP()
 
+		DECLARE_MESSAGE_MAP()
 
 		afx_msg void FirstDirectoryAddressEdit();
 		afx_msg void SecondDirectoryAddressEdit();
+
 		afx_msg void ClickedButtonFirstView();
 		afx_msg void ClickedButtonSecondView();
-		afx_msg void Synchronize();
+
+		afx_msg void SynchronizeLeftToRight();
+		afx_msg void SynchronizeRightToLeft();
+
 		afx_msg void BeginScrollListFirst(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void BeginScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult);
+
+		afx_msg void ChangeCheckBoxLeftToRight();
+		afx_msg void ChangeCheckBoxEqual();
+		afx_msg void ChangeCheckNotEqual();
+		afx_msg void ChangeCheckRightToLeft();
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);
 
 		afx_msg void CompareFolders();
 
+		void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
 		
 		// Обновление списка файлов
 		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
@@ -61,9 +71,9 @@ class CApplicationDlg : public CDialogEx
 		void UpdateAll(BOOL ready = 0);
 
 		// Функции синхронизации
-		void synchronizeNotEqual(WFDFile first, WFDFile second);
-		void synchronizeLeftToRight(WFDFile first, WFDFile second);
-		void synchronizeRightToLeft(WFDFile first, WFDFile second);
+		void syncNotEqual(WFDFile first, WFDFile second);
+		void syncLeftToRight(WFDFile first, WFDFile second);
+		void syncRightToLeft(WFDFile first, WFDFile second);
 
 		int GetItemHeight(CListCtrl&);
 
@@ -105,17 +115,15 @@ class CApplicationDlg : public CDialogEx
 
 		BOOL ReadyToSync;
 
-		CButton SynchronizeButton;
+		CButton SynchronizeLeftToRightButton;
+		CButton SynchronizeRightToLeftButton;
 
 		std::vector<WFDFile> FilesFirstList;
 		std::vector<WFDFile> FilesSecondList;
 
 		// Результаты сравнения
 		std::vector<ComparisonResult> Comparasions;
-	 
-public:
-	afx_msg void ChangeCheckBoxLeftToRight();
-	afx_msg void ChangeCheckBoxEqual();
-	afx_msg void ChangeCheckNotEqual();
-	afx_msg void ChangeCheckRightToLeft();
+	
+	
+	
 };

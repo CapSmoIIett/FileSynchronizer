@@ -14,6 +14,9 @@ std::vector<ComparisonResult> CApplicationDlg::CompareAll(std::vector<WFDFile> F
 	if (firstDir == L"") firstDir = FirstDirectoryAddress;
 	if (secondDir == L"") secondDir = SecondDirectoryAddress;
 
+	FirstList = ViewDirectory(firstDir);
+	SecondList = ViewDirectory(secondDir);
+
 	std::vector<ComparisonResult> result;
 
 	for (int i = 0; (size_t)i < FirstList.size(); i++)
@@ -223,7 +226,7 @@ void CApplicationDlg::UpdateComparisonList(int begin)
 	}//*/
 }
 
-void CApplicationDlg::synchronizeNotEqual(WFDFile first, WFDFile second)
+void CApplicationDlg::syncNotEqual(WFDFile first, WFDFile second)
 {
 	BOOL FailIfExists = FALSE;
 	CopyFile(first.fullName, second.fullName, FailIfExists);
@@ -234,7 +237,7 @@ void CApplicationDlg::synchronizeNotEqual(WFDFile first, WFDFile second)
 	}
 }
 
-void CApplicationDlg::synchronizeLeftToRight(WFDFile first, WFDFile second)
+void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
 {
 	BOOL FailIfExists = FALSE;
 	CString secondFileName;
@@ -264,6 +267,7 @@ void CApplicationDlg::synchronizeLeftToRight(WFDFile first, WFDFile second)
 		return;
 	}
 
+	// TODO понять зачем 
 	if (second.name == L"")
 	{
 		if (second.fullName != L"")
@@ -271,15 +275,19 @@ void CApplicationDlg::synchronizeLeftToRight(WFDFile first, WFDFile second)
 		if (first.type != L"" && first.type != L" ")
 			secondFileName += L"." + first.type;
 	}
+	else
+	{
+		secondFileName = second.fullName;
+	}
 	CopyFile(first.fullName, secondFileName, FailIfExists);
-	if (!WithoutDate)
+	/*if (!WithoutDate)
 	{
 		// чтобы было одинаковое время последнего доступа
 		CopyFile(secondFileName, first.fullName, FailIfExists);
-	}
+	}*/
 }
 
-void CApplicationDlg::synchronizeRightToLeft(WFDFile first, WFDFile second)
+void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
 {
 	BOOL FailIfExists = FALSE;
 	CString firstFileName;
@@ -316,10 +324,14 @@ void CApplicationDlg::synchronizeRightToLeft(WFDFile first, WFDFile second)
 		if (second.type != L"" && second.type != L" ")
 			firstFileName += L"." + second.type;
 	}
+	else
+	{
+		firstFileName = first.fullName;
+	}
 	CopyFile(second.fullName, firstFileName, FailIfExists);
-	if (!WithoutDate)
+	/*if (!WithoutDate)
 	{
 		// чтобы было одинаковое время последнего доступа
 		CopyFile(firstFileName, second.fullName, FailIfExists);
-	}
+	}*/
 }

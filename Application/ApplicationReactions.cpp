@@ -163,7 +163,7 @@ void CApplicationDlg::CompareFolders()
 	UpdateData(false);\*/
 }
 
-void CApplicationDlg::Synchronize()
+void CApplicationDlg::SynchronizeLeftToRight()
 {
 	for (ComparisonResult i : Comparasions)
 	{
@@ -174,20 +174,53 @@ void CApplicationDlg::Synchronize()
 		case NOTEQUAL:
 		{
 			if (!NotEqual)break;								// ѕропускаем если это не выбранно пользователем (checkbox)
-			synchronizeNotEqual(i.FirstFile, i.SecondFile);
+			syncLeftToRight(i.FirstFile, i.SecondFile);
 			break;
 		}
 
 		case LEFTtoRIGHT:
 		{
 			if (!LeftToRight) break;
-			synchronizeLeftToRight(i.FirstFile, i.SecondFile);
+			syncLeftToRight(i.FirstFile, i.SecondFile);
 			break;
 		}
 		case RIGHTtoLEFT:
 		{
+			
+		}
+		}
+	}
+	/*Comparasions.clear();
+	ListComparisonResults.DeleteAllItems();*/
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	UpdateAll(TRUE);
+	UpdateData(false);
+}
+
+void CApplicationDlg::SynchronizeRightToLeft()
+{
+	for (ComparisonResult i : Comparasions)
+	{
+		switch (i.ratio)
+		{
+		default: continue;
+
+		case NOTEQUAL:
+		{
+			if (!NotEqual)break;								// ѕропускаем если это не выбранно пользователем (checkbox)
+			syncRightToLeft(i.FirstFile, i.SecondFile);
+			break;
+		}
+
+		case LEFTtoRIGHT:
+		{
+		
+		}
+		case RIGHTtoLEFT:
+		{
 			if (!RightToLeft) break;
-			synchronizeRightToLeft(i.FirstFile, i.SecondFile);
+			syncRightToLeft(i.FirstFile, i.SecondFile);
 			break;
 		}
 		}
@@ -195,6 +228,7 @@ void CApplicationDlg::Synchronize()
 	/*Comparasions.clear();
 	ListComparisonResults.DeleteAllItems();*/
 
+	
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(TRUE);
 	UpdateData(false);
@@ -273,4 +307,62 @@ void CApplicationDlg::ChangeCheckRightToLeft()
 {
 	RightToLeft = !RightToLeft;
 	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
+	NMTVCUSTOMDRAW* pNVCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
+	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+
+	if (ReadyToSync)
+	{
+		switch (pLVCD->nmcd.dwDrawStage)
+		{
+		case CDDS_PREPAINT:
+			*pResult = CDRF_NOTIFYITEMDRAW;
+			break;
+
+		case CDDS_ITEMPREPAINT:
+			*pResult = CDRF_NOTIFYSUBITEMDRAW;
+			break;
+
+		case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
+		{
+			/*static int n = 0;//TODO нужно получить номер элемента
+			if (n >= (Comparasions.size() - 1) || n < 0)
+			{
+				n = 0;
+			}
+			else
+			{
+				n++;
+			}
+			switch (Comparasions[n].ratio)		// так как в таблице 5 элементов
+			{
+			case LEFTtoRIGHT:
+			{
+				pLVCD->clrText = RGB(0, 255, 0);
+				break;
+			}
+			case NOTEQUAL:
+			{
+				pLVCD->clrText = RGB(255, 0, 0);
+				break;
+			}
+			case RIGHTtoLEFT:
+			{
+				pLVCD->clrText = RGB(0, 0, 255);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}*/
+		}
+		break;
+		}
+	}//*/
+	return;
 }

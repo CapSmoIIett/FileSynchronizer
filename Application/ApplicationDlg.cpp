@@ -23,7 +23,7 @@
 #include <io.h>
 #include <fcntl.h>
 
-#define SIZE_COL_COMP 30
+#define SIZE_COL_COMP 35
 #define SIZE_COL_NAME 150
 #define SIZE_COL_TYPE 100
 #define SIZE_COL_SIZE 100
@@ -40,7 +40,6 @@
 #endif
 
 
-// Диалоговое окно CApplicationDlg
 CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_APPLICATION_DIALOG, pParent)
 	, FirstDirectoryAddress(_T(""))
@@ -138,10 +137,11 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK5, Equal);
 	DDX_Check(pDX, IDC_CHECK6, NotEqual);
 	DDX_Check(pDX, IDC_CHECK7, RightToLeft);
-	DDX_Control(pDX, IDC_BUTTON4, SynchronizeButton);
+	DDX_Control(pDX, IDC_BUTTON4, SynchronizeLeftToRightButton);
+	DDX_Control(pDX, IDC_BUTTON5, SynchronizeRightToLeftButton);
 	DDX_Control(pDX, IDC_LIST6, ListComparisonResults);
+	
 }
-
 
 BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
@@ -156,7 +156,10 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 
 	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST5, &CApplicationDlg::SelectElementFirstTable)
 	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST4, &CApplicationDlg::SelectElementSecondTable)
-	ON_BN_CLICKED(IDC_BUTTON4, &CApplicationDlg::Synchronize)
+
+	ON_BN_CLICKED(IDC_BUTTON4, &CApplicationDlg::SynchronizeLeftToRight)
+	ON_BN_CLICKED(IDC_BUTTON5, &CApplicationDlg::SynchronizeRightToLeft)
+
 	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST5, &CApplicationDlg::BeginScrollListFirst)
 	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST4, &CApplicationDlg::BeginScrollListSecond)
 	
@@ -164,10 +167,9 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK5, &CApplicationDlg::ChangeCheckBoxEqual)
 	ON_BN_CLICKED(IDC_CHECK6, &CApplicationDlg::ChangeCheckNotEqual)
 	ON_BN_CLICKED(IDC_CHECK7, &CApplicationDlg::ChangeCheckRightToLeft)
+
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
 END_MESSAGE_MAP()
-
-
-// Обработчики сообщений CApplicationDlg
 
 BOOL CApplicationDlg::OnInitDialog()
 {
@@ -192,7 +194,8 @@ BOOL CApplicationDlg::OnInitDialog()
 		}
 	}
 
-	SynchronizeButton.EnableWindow(FALSE);
+	SynchronizeLeftToRightButton.EnableWindow(FALSE);
+	SynchronizeRightToLeftButton.EnableWindow(FALSE);
 
 	// Задает значок для этого диалогового окна.  Среда делает это автоматически,
 	//  если главное окно приложения не является диалоговым
@@ -248,19 +251,24 @@ void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CS
 	{
 		BOOL flag = 1;
 		int i = 0;
-		for (; (size_t)i < path.GetLength(); i++)
-			if (path[i] != file.fullName[i]) flag = 0;
+		for (; i < path.GetLength(); i++)
+			if (path[i] != file.fullName[i])
+			{
+				flag = 0;
+				break;
+			}
 		if (flag)
 		{
-			CString temp = file.getPath();
-			folder = temp.Right(temp.GetLength() - i - 1);
+			CString temp = file.fullName;
+			temp = temp.Right(temp.GetLength() - i - 1);
+			folder = temp.Left(temp.Find(file.name));
 		}
 	}
 
 	int item = 0;
 	if (file.size == L"0")
 	{
-		item = list.InsertItem(number, file.name + "\\", -1);
+		item = list.InsertItem(number, folder + file.name + "\\", -1);
 	}
 	else
 	{
@@ -326,7 +334,9 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 	ReadyToSync = ready;
 	if (ReadyToSync)
 	{
-		SynchronizeButton.EnableWindow(TRUE);
+		SynchronizeLeftToRightButton.EnableWindow(TRUE);
+		SynchronizeRightToLeftButton.EnableWindow(TRUE);
+
 		UpdateComparisonList();
 
 		ListFirstFolder.DeleteAllItems();
@@ -338,8 +348,8 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 			if (file.FirstFile.size == L"0" &&
 				file.SecondFile.size == L"0")
 			{
-				insertInList(ListFirstFolder, file.FirstFile, i);
-				insertInList(ListSecondFolder, file.SecondFile, i);
+				insertInList(ListFirstFolder, file.FirstFile, i, FirstDirectoryAddress);
+				insertInList(ListSecondFolder, file.SecondFile, i, SecondDirectoryAddress);
 				i++;
 				continue;
 			}
@@ -348,6 +358,7 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 			{
 			case LEFTtoRIGHT:	
 			{
+				//ListFirstFolder.GetItem();
 				if (!LeftToRight) continue;
 				break;
 			}
@@ -375,7 +386,8 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 	}
 	else
 	{
-		SynchronizeButton.EnableWindow(FALSE);
+		SynchronizeLeftToRightButton.EnableWindow(FALSE);
+		SynchronizeRightToLeftButton.EnableWindow(FALSE);
 		Comparasions.clear();
 		ListComparisonResults.DeleteAllItems();
 		if (!FirstDirectoryAddress.IsEmpty())
@@ -386,7 +398,7 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 	UpdateData(false);
 }
 
-int CApplicationDlg::GetItemHeight(CListCtrl& list)
+int  CApplicationDlg::GetItemHeight(CListCtrl& list)
 {
 	CRect ItemRect;
 	list.GetSubItemRect(1, 1, LVIR_BOUNDS, ItemRect);
