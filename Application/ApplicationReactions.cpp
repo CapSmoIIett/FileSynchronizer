@@ -88,7 +88,7 @@ void CApplicationDlg::ClickedButtonSecondView()
 	}
 
 	UpdateAll();
-	UpdateData(false);		// из переменных в управление2
+	UpdateData(false);		// из переменных в управление
 }
 
 void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
@@ -171,10 +171,6 @@ void CApplicationDlg::SynchronizeLeftToRight()
 			syncLeftToRight(i.FirstFile, i.SecondFile);
 			break;
 		}
-		case RIGHTtoLEFT:
-		{
-			
-		}
 		}
 	}
 
@@ -196,11 +192,6 @@ void CApplicationDlg::SynchronizeRightToLeft()
 			if (!NotEqual)break;								// Пропускаем если это не выбранно пользователем (checkbox)
 			syncRightToLeft(i.FirstFile, i.SecondFile);
 			break;
-		}
-
-		case LEFTtoRIGHT:
-		{
-		
 		}
 		case RIGHTtoLEFT:
 		{

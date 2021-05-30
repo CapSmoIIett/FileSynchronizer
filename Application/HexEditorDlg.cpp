@@ -1,12 +1,10 @@
-﻿// HexEditorDlg.cpp: файл реализации
-#include <fstream>
+﻿#include <fstream>
 #include "pch.h"
 #include "Application.h"
 #include "HexEditorDlg.h"
 #include "afxdialogex.h"
 
 #include <sys/stat.h>
-
 #include <stack>
 
 #define AMOUNT_COL		48		// 16 - линейка, 16 - ascii представления, 16 - 16-ое значение 
@@ -24,22 +22,29 @@ CHexEditorDlg::CHexEditorDlg(WFDFile wfd, CWnd* pParent) :
 	CDialogEx(IDD_DIALOG1, pParent),
 	CurrentFile(wfd)
 {	
-	handle = CreateFile(CurrentFile.fullName, GENERIC_READ, 0, NULL,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (handle == INVALID_HANDLE_VALUE) return;
-	
-	 
-	HANDLE mappFile = CreateFileMapping(handle, NULL, PAGE_READONLY, 0, 0, NULL);
-	if (mappFile == NULL)
+	try
 	{
-		CloseHandle(handle);
-		return;
-	}
+		handle = CreateFile(CurrentFile.fullName, GENERIC_READ, 0, NULL,
+			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (handle == INVALID_HANDLE_VALUE) return;
 
-	pointer = (unsigned char*)MapViewOfFile(mappFile, FILE_MAP_READ, 0, 0, 0);
-	if (pointer == NULL)
-	{
-		CloseHandle(handle);
+
+		HANDLE mappFile = CreateFileMapping(handle, NULL, PAGE_READONLY, 0, 0, NULL);
+		if (mappFile == NULL)
+		{
+			CloseHandle(handle);
+			return;
+		}
+
+		pointer = (unsigned char*)MapViewOfFile(mappFile, FILE_MAP_READ, 0, 0, 0);
+		if (pointer == NULL)
+		{
+			CloseHandle(handle);
+			return;
+		}
+	}
+	catch(...){
+		SendMessage(WM_CLOSE);
 		return;
 	}
 }
@@ -150,19 +155,16 @@ CString CHexEditorDlg::IntToHex(int number, int size)
 	return answer;
 }
 
-
 void CHexEditorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, DataTable);
 }
 
-
 BEGIN_MESSAGE_MAP(CHexEditorDlg, CDialogEx)
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST1, &CHexEditorDlg::OnGetdispinfoList)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST1, &CHexEditorDlg::OnNMCustomdraw)
 END_MESSAGE_MAP()
-
 
 void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 {

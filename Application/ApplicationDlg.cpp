@@ -51,7 +51,7 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 	ScrollMutex = NOBODY_SCROLL;
 	
 	// Установка иконки
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);//L"res\\Application"
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	// Чтение из файла путей из прошлой ссесии 
 	try

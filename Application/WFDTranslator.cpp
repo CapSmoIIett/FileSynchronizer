@@ -10,24 +10,24 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 
 	size.Format(L"%d", ((long)wfd.nFileSizeHigh * ((long)MAXDWORD + 1)) + wfd.nFileSizeLow);
 
-	int n = 0;
+	int pointLocation = 0;
 	if (size != L"0")
 	{
 		int temp = 0;
 		do
 		{
-			n = temp;
-			temp = name.Find(L'.', n + 1);
+			pointLocation = temp;
+			temp = name.Find(L'.', pointLocation + 1);
 		} while (temp != -1);
 	}
 
 
-	if (n == 0) {				// ≈сли не нашли тип
+	if (pointLocation == 0) {				// ≈сли не нашли тип
 		type = " ";
 	}
 	else {			
-		type = name.Right(name.GetLength() - n - 1);	// -1 убираем точку из типа
-		name = name.Left(n);
+		type = name.Right(name.GetLength() - pointLocation - 1);	// -1 убираем точку из типа
+		name = name.Left(pointLocation);
 	}
 
 	//FileTimeToSystemTime(&wfd.ftLastAccessTime, &UTC);

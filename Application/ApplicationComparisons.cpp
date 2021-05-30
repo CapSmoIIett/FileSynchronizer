@@ -144,37 +144,44 @@ ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 	{
 		int len = _ttoi(first.size);		// Размеры одинаковы
 
-		CFile fileFirst;
-		CFile fileSecond;
-
-		unsigned char* pointerFirst = new unsigned char[len];
-		unsigned char* pointerSecond = new unsigned char[len];
-
-		if (fileFirst.Open(first.fullName, CFile::modeRead | CFile::typeBinary) == 0)
+		try
 		{
-			return ComparisonResult(first, second, NOTEQUAL);
-		}
+			CFile fileFirst;
+			CFile fileSecond;
 
-		if (fileSecond.Open(second.fullName, CFile::modeRead | CFile::typeBinary) == 0)
-		{
-			return ComparisonResult(first, second, NOTEQUAL);
-		}
+			unsigned char* pointerFirst = new unsigned char[len];
+			unsigned char* pointerSecond = new unsigned char[len];
 
-		if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < (size_t)len)
-			return ComparisonResult(first, second, NOTEQUAL);
-		if (fileSecond.Read((void*)pointerSecond, sizeof(char) * len) < (size_t)len)
-			return ComparisonResult(first, second, NOTEQUAL);
-
-		for (int i = 0; i < len; i++)
-			if (pointerFirst[i] != pointerSecond[i])
+			if (fileFirst.Open(first.fullName, CFile::modeRead | CFile::typeBinary) == 0)
 			{
-				fileFirst.Close();
-				fileSecond.Close();
 				return ComparisonResult(first, second, NOTEQUAL);
 			}
 
-		fileFirst.Close();
-		fileSecond.Close();
+			if (fileSecond.Open(second.fullName, CFile::modeRead | CFile::typeBinary) == 0)
+			{
+				return ComparisonResult(first, second, NOTEQUAL);
+			}
+
+			if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < (size_t)len)
+				return ComparisonResult(first, second, NOTEQUAL);
+			if (fileSecond.Read((void*)pointerSecond, sizeof(char) * len) < (size_t)len)
+				return ComparisonResult(first, second, NOTEQUAL);
+
+			for (int i = 0; i < len; i++)
+				if (pointerFirst[i] != pointerSecond[i])
+				{
+					fileFirst.Close();
+					fileSecond.Close();
+					return ComparisonResult(first, second, NOTEQUAL);
+				}
+
+			fileFirst.Close();
+			fileSecond.Close();
+		}
+		catch (...)
+		{
+			return  ComparisonResult(first, second, NOTEQUAL);
+		}
 	}
 
 	return ComparisonResult(first, second, EQUAL);
@@ -273,7 +280,6 @@ void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
 	}
 
 	CopyFile(first.fullName, secondFileName, FailIfExists);
-
 }
 
 void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
@@ -322,5 +328,4 @@ void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
 	}
 	
 	CopyFile(second.fullName, firstFileName, FailIfExists);
-
 }
