@@ -6,7 +6,6 @@
 #include "afxdialogex.h"
 #include "WFDTranslator.h"
 #include "HexEditorDlg.h"
-#include "ComparatorDlg.h"
 
 std::vector<ComparisonResult> CApplicationDlg::CompareAll(std::vector<WFDFile> FirstList,
 	std::vector<WFDFile> SecondList, CString firstDir, CString secondDir)
@@ -23,16 +22,15 @@ std::vector<ComparisonResult> CApplicationDlg::CompareAll(std::vector<WFDFile> F
 	{
 		BOOL isAdd = FALSE;
 
-
 		// Проверка директории 
 		if (FirstList[i].size == L"0")
 		{
 			if (!WithFolders) continue;
 
 			BOOL found = FALSE;
-
-			// Поиск одноименной директории
 			int element = 0;
+
+			// Поиск одноименной директории в другой папке
 			for (; (size_t)element < SecondList.size(); element++)
 				if (FirstList[i].name == SecondList[element].name)
 					if (FirstList[i].size == SecondList[element].size)
@@ -59,6 +57,7 @@ std::vector<ComparisonResult> CApplicationDlg::CompareAll(std::vector<WFDFile> F
 			// Сравниваем директории 
 			std::vector<ComparisonResult> temp = CompareAll(filesFirst, filesSecond,
 				FirstList[i].fullName, SecondList[element].fullName);
+			// Вносим результат в общий список
 			for (int j = 0; (size_t)j < temp.size(); j++)
 			{
 				result.push_back(temp[j]);
@@ -82,6 +81,7 @@ std::vector<ComparisonResult> CApplicationDlg::CompareAll(std::vector<WFDFile> F
 		if (!isAdd)
 			result.push_back(ComparisonResult(FirstList[i], WFDFile(secondDir), LEFTtoRIGHT));
 	}
+	// Просмотр файлов которые есть в второй директории но которых нет в первой
 	for (int i = 0; (size_t)i < SecondList.size(); i++)
 	{
 		bool hasAlready = false;
@@ -145,19 +145,20 @@ ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 		int len = _ttoi(first.size);		// Размеры одинаковы
 
 		CFile fileFirst;
+		CFile fileSecond;
+
+		unsigned char* pointerFirst = new unsigned char[len];
+		unsigned char* pointerSecond = new unsigned char[len];
+
 		if (fileFirst.Open(first.fullName, CFile::modeRead | CFile::typeBinary) == 0)
 		{
 			return ComparisonResult(first, second, NOTEQUAL);
 		}
 
-		CFile fileSecond;
 		if (fileSecond.Open(second.fullName, CFile::modeRead | CFile::typeBinary) == 0)
 		{
 			return ComparisonResult(first, second, NOTEQUAL);
 		}
-
-		unsigned char* pointerFirst = new unsigned char[len];
-		unsigned char* pointerSecond = new unsigned char[len];
 
 		if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < (size_t)len)
 			return ComparisonResult(first, second, NOTEQUAL);
@@ -171,6 +172,7 @@ ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 				fileSecond.Close();
 				return ComparisonResult(first, second, NOTEQUAL);
 			}
+
 		fileFirst.Close();
 		fileSecond.Close();
 	}
@@ -185,23 +187,22 @@ void CApplicationDlg::UpdateComparisonList(int begin)
 	// Отступ (вместо шапки таблицы)
 	ListComparisonResults.InsertItem(0,  L" ", -1);
 	
-
-	// TODO заменить i и k на подходящие имена
-	// i - номер элемента в списке
-	// k - номер эл. в таблице
-	for (int i = begin, k = 0; (size_t)i < Comparasions.size(); i++, k++)
+	for (int comparisonNumber = begin, listNumber = 0; 
+		(size_t)comparisonNumber < Comparasions.size(); 
+		comparisonNumber++, listNumber++)
 	{
 		CString ratio;
 		int item = 0;
 
-		if (Comparasions[i].FirstFile.size == L"0" &&
-			Comparasions[i].SecondFile.size == L"0")
+		if (Comparasions[comparisonNumber].FirstFile.size == L"0" &&
+			Comparasions[comparisonNumber].SecondFile.size == L"0")
 		{
-			ListComparisonResults.InsertItem(k + 1, L" ", -1);
+			// Из за отступа + 1
+			ListComparisonResults.InsertItem(listNumber + 1, L" ", -1);
 			continue;
 		}
 
-		switch (Comparasions[i].ratio)
+		switch (Comparasions[comparisonNumber].ratio)
 		{
 		default:
 			ratio = L"!=";
@@ -221,20 +222,9 @@ void CApplicationDlg::UpdateComparisonList(int begin)
 			break;
 		}
 
-		// Из за отступа
-		ListComparisonResults.InsertItem(k + 1, ratio, -1);
+		// Из за отступа + 1
+		ListComparisonResults.InsertItem(listNumber + 1, ratio, -1);
 	}//*/
-}
-
-void CApplicationDlg::syncNotEqual(WFDFile first, WFDFile second)
-{
-	BOOL FailIfExists = FALSE;
-	CopyFile(first.fullName, second.fullName, FailIfExists);
-	if (!WithoutDate)
-	{
-		// чтобы было одинаковое время последнего доступа
-		CopyFile(second.fullName, first.fullName, FailIfExists);
-	}
 }
 
 void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
@@ -242,6 +232,7 @@ void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
 	BOOL FailIfExists = FALSE;
 	CString secondFileName;
 
+	// Если нужно скопировать директорию
 	if (first.size == L"0")
 	{
 		// копируем всю папку
@@ -267,7 +258,8 @@ void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
 		return;
 	}
 
-	// TODO понять зачем 
+	// Если нужно скопировать файл
+	// Если такого файла нет, собираем его имя 
 	if (second.name == L"")
 	{
 		if (second.fullName != L"")
@@ -279,12 +271,9 @@ void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
 	{
 		secondFileName = second.fullName;
 	}
+
 	CopyFile(first.fullName, secondFileName, FailIfExists);
-	/*if (!WithoutDate)
-	{
-		// чтобы было одинаковое время последнего доступа
-		CopyFile(secondFileName, first.fullName, FailIfExists);
-	}*/
+
 }
 
 void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
@@ -292,6 +281,7 @@ void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
 	BOOL FailIfExists = FALSE;
 	CString firstFileName;
 
+	// Если нужно скопировать директорию
 	if (second.size == L"0")
 	{
 		// копируем всю папку
@@ -317,6 +307,8 @@ void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
 		return;
 	}
 
+	// Если нужно скопировать файл
+	// Если такого файла нет, собираем его имя 
 	if (first.name == L"")
 	{
 		if (first.fullName != L"")
@@ -328,10 +320,7 @@ void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
 	{
 		firstFileName = first.fullName;
 	}
+	
 	CopyFile(second.fullName, firstFileName, FailIfExists);
-	/*if (!WithoutDate)
-	{
-		// чтобы было одинаковое время последнего доступа
-		CopyFile(firstFileName, second.fullName, FailIfExists);
-	}*/
+
 }

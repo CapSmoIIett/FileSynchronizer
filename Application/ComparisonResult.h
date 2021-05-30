@@ -5,7 +5,7 @@
 #define LEFTtoRIGHT 2
 #define RIGHTtoLEFT 3
 
-
+// Структура представляющая результат сравнение двух файлов
 struct ComparisonResult
 {
 	WFDFile FirstFile;

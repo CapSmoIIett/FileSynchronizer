@@ -1,8 +1,4 @@
-﻿
-// Application.cpp: определяет поведение классов для приложения.
-//
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "framework.h"
 #include "Application.h"
 #include "ApplicationDlg.h"
@@ -22,6 +18,7 @@ CApplication::CApplication()
 	// поддержка диспетчера перезагрузки
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 }
+
 
 // Единственный объект CApplication
 CApplication theApp;

@@ -10,7 +10,7 @@
 #define SECOND_SCROLL 2
 
 
-// Диалоговое окно CApplicationDlg
+// Главное диалоговое окно 
 class CApplicationDlg : public CDialogEx
 {
 	public:
@@ -61,7 +61,8 @@ class CApplicationDlg : public CDialogEx
 
 		afx_msg void CompareFolders();
 
-		void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void OnNMCustomdrawSecond(NMHDR* pNMHDR, LRESULT* pResult);
 		
 		// Обновление списка файлов
 		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
@@ -123,7 +124,5 @@ class CApplicationDlg : public CDialogEx
 
 		// Результаты сравнения
 		std::vector<ComparisonResult> Comparasions;
-	
-	
-	
+
 };

@@ -6,8 +6,6 @@
 #include "afxdialogex.h"
 #include "WFDTranslator.h"
 #include "HexEditorDlg.h"
-#include "ComparatorDlg.h"
-
 
 
 // ѕри добавлении кнопки свертывани€ в диалоговое окно нужно воспользоватьс€ приведенным ниже кодом,
@@ -52,7 +50,6 @@ void CApplicationDlg::FirstDirectoryAddressEdit()
 	if (FirstDirectoryAddress.IsEmpty()) return;
 
 	UpdateData(true);
-
 	UpdateAll();
 	UpdateData(false);
 }
@@ -60,8 +57,8 @@ void CApplicationDlg::FirstDirectoryAddressEdit()
 void CApplicationDlg::SecondDirectoryAddressEdit()
 {
 	if (SecondDirectoryAddress.IsEmpty()) return;
+	
 	UpdateData(true);
-
 	UpdateAll();
 	UpdateData(false);
 }
@@ -69,6 +66,7 @@ void CApplicationDlg::SecondDirectoryAddressEdit()
 void CApplicationDlg::ClickedButtonFirstView()
 {
 	CFolderPickerDialog dlg;
+
 	auto answer = dlg.DoModal();
 	if (answer == IDOK)
 	{
@@ -82,6 +80,7 @@ void CApplicationDlg::ClickedButtonFirstView()
 void CApplicationDlg::ClickedButtonSecondView()
 {
 	CFolderPickerDialog dlg;
+
 	auto answer = dlg.DoModal();
 	if (answer == IDOK)
 	{
@@ -96,11 +95,10 @@ void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
-	//WFDFile file = FilesFirstList[FilesFirstList.size() - pNMIA->iItem - 1];
-	WFDFile file = FilesFirstList[pNMIA->iItem];
-
 	if (!ReadyToSync)
 	{
+		WFDFile file = FilesFirstList[pNMIA->iItem];
+
 		if (file.size == L"0")
 		{
 			FirstDirectoryAddress += L"\\" + file.name;
@@ -121,11 +119,10 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
-	//WFDFile file = FilesSecondList[FilesSecondList.size() - pNMIA->iItem - 1];
-	WFDFile file = FilesSecondList[pNMIA->iItem];
-
 	if (!ReadyToSync)
 	{
+		WFDFile file = FilesSecondList[pNMIA->iItem];
+
 		if (file.size == L"0")
 		{
 			SecondDirectoryAddress += L"\\" + file.name;
@@ -145,22 +142,12 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 void CApplicationDlg::CompareFolders()
 {
 	UpdateData(true);
+
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+
 	UpdateAll(TRUE);
+	
 	UpdateData(false);
-	/*
-	UpdateData(true);
-	if (FirstDirectoryAddress.IsEmpty() || SecondDirectoryAddress.IsEmpty())
-		return;
-	UpdateList(ListFirstFolder, FirstDirectoryAddress, FilesFirstList);
-	UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
-	CComparatorDlg comparator(FilesFirstList, FilesSecondList,
-		FirstDirectoryAddress, SecondDirectoryAddress, this);
-	comparator.setWithContent(WithContent);
-	comparator.setWithFolders(WithFolders);
-	comparator.setWithoutDate(WithoutDate);
-	comparator.DoModal();
-	UpdateData(false);\*/
 }
 
 void CApplicationDlg::SynchronizeLeftToRight()
@@ -190,8 +177,6 @@ void CApplicationDlg::SynchronizeLeftToRight()
 		}
 		}
 	}
-	/*Comparasions.clear();
-	ListComparisonResults.DeleteAllItems();*/
 
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(TRUE);
@@ -225,9 +210,6 @@ void CApplicationDlg::SynchronizeRightToLeft()
 		}
 		}
 	}
-	/*Comparasions.clear();
-	ListComparisonResults.DeleteAllItems();*/
-
 	
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(TRUE);
@@ -256,6 +238,7 @@ void CApplicationDlg::BeginScrollListFirst(NMHDR* pNMHDR, LRESULT* pResult)
 		ScrollPosition = pos;
 		ScrollMutex = NOBODY_SCROLL;
 	}
+
 	*pResult = 0;
 }
 
@@ -281,6 +264,7 @@ void CApplicationDlg::BeginScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult)
 		ScrollPosition = pos;
 		ScrollMutex = NOBODY_SCROLL;
 	}
+
 	*pResult = 0;
 }
 
@@ -288,7 +272,6 @@ void CApplicationDlg::ChangeCheckBoxLeftToRight()
 {
 	LeftToRight = !LeftToRight;
 	UpdateAll(ReadyToSync);
-
 }
 
 void CApplicationDlg::ChangeCheckBoxEqual()
@@ -307,62 +290,4 @@ void CApplicationDlg::ChangeCheckRightToLeft()
 {
 	RightToLeft = !RightToLeft;
 	UpdateAll(ReadyToSync);
-}
-
-void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
-	NMTVCUSTOMDRAW* pNVCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
-	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-
-	if (ReadyToSync)
-	{
-		switch (pLVCD->nmcd.dwDrawStage)
-		{
-		case CDDS_PREPAINT:
-			*pResult = CDRF_NOTIFYITEMDRAW;
-			break;
-
-		case CDDS_ITEMPREPAINT:
-			*pResult = CDRF_NOTIFYSUBITEMDRAW;
-			break;
-
-		case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
-		{
-			/*static int n = 0;//TODO нужно получить номер элемента
-			if (n >= (Comparasions.size() - 1) || n < 0)
-			{
-				n = 0;
-			}
-			else
-			{
-				n++;
-			}
-			switch (Comparasions[n].ratio)		// так как в таблице 5 элементов
-			{
-			case LEFTtoRIGHT:
-			{
-				pLVCD->clrText = RGB(0, 255, 0);
-				break;
-			}
-			case NOTEQUAL:
-			{
-				pLVCD->clrText = RGB(255, 0, 0);
-				break;
-			}
-			case RIGHTtoLEFT:
-			{
-				pLVCD->clrText = RGB(0, 0, 255);
-				break;
-			}
-			default:
-			{
-				break;
-			}
-			}*/
-		}
-		break;
-		}
-	}//*/
-	return;
 }

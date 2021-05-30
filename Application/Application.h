@@ -8,7 +8,6 @@
 
 
 // CApplication:
-// Сведения о реализации этого класса: Application.cpp
 class CApplication : public CWinApp
 {
 	public:

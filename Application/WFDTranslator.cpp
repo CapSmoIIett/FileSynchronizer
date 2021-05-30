@@ -8,7 +8,7 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 
 	FullName = path + L"\\" + name;
 
-	size.Format(L"%d", ((long)wfd.nFileSizeHigh * (MAXDWORD + 1)) + wfd.nFileSizeLow);
+	size.Format(L"%d", ((long)wfd.nFileSizeHigh * ((long)MAXDWORD + 1)) + wfd.nFileSizeLow);
 
 	int n = 0;
 	if (size != L"0")
@@ -37,7 +37,6 @@ WFDTranslator::WFDTranslator(WIN32_FIND_DATA wfd, CString path)
 		time.wHour, time.wMinute);
 
 	
-
 	attr += (wfd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? L'r' : L'-';			// Сверяем атрибуты
 	attr += (wfd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)  ? L'a' : L'-';
 	attr += (wfd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)   ? L'h' : L'-';

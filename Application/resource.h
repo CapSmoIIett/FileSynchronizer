@@ -8,7 +8,6 @@
 #define IDD_APPLICATION_DIALOG          102
 #define IDR_MAINFRAME                   128
 #define IDD_DIALOG1                     130
-#define IDD_DIALOG2                     132
 #define IDC_EDIT1                       1000
 #define IDC_EDIT2                       1001
 #define IDC_BUTTON1                     1002

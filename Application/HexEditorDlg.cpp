@@ -9,30 +9,26 @@
 
 #include <stack>
 
-#define AMOUNT_COL		48		// 16 - линейка, 16 - ascii представления, 16 - 16-ое
-// Подразумевается что для каждый отдел таблицы занимает одинаковый размер 
+#define AMOUNT_COL		48		// 16 - линейка, 16 - ascii представления, 16 - 16-ое значение 
 #define COL_RULER		16
 #define COL_ASCII		16
 #define COL_HEX			16
 #define FFFFFFFF		4294967295	// 0FFFFFFFFh in dec
 #define SIZE_COL		20
 
-// Диалоговое окно CHexEditorDlg
 
 IMPLEMENT_DYNAMIC(CHexEditorDlg, CDialogEx)
 
-CHexEditorDlg::CHexEditorDlg(WFDFile wfd, CWnd* pParent /*=nullptr*/) :
+
+CHexEditorDlg::CHexEditorDlg(WFDFile wfd, CWnd* pParent) :
 	CDialogEx(IDD_DIALOG1, pParent),
 	CurrentFile(wfd)
 {	
 	handle = CreateFile(CurrentFile.fullName, GENERIC_READ, 0, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (handle == INVALID_HANDLE_VALUE)
-	{
-
-		return;
-	}
-
+	if (handle == INVALID_HANDLE_VALUE) return;
+	
+	 
 	HANDLE mappFile = CreateFileMapping(handle, NULL, PAGE_READONLY, 0, 0, NULL);
 	if (mappFile == NULL)
 	{
@@ -73,6 +69,8 @@ BOOL CHexEditorDlg::OnInitDialog() {
 		}
 	}
 
+	DataTable.SetExtendedStyle(LVS_EX_DOUBLEBUFFER);
+
 	// Наша таблица - виртуальная (это необходимо для ускорения обработки данных)
 	
 	// Устанавливаем количество элементов
@@ -89,9 +87,8 @@ BOOL CHexEditorDlg::OnInitDialog() {
 	for (int i = 0; i < AMOUNT_COL; i++)	// Создание колонок таблицы
 		DataTable.InsertColumn(i, L"", LVCFMT_LEFT, SIZE_COL);
 
-	//DataTable.SetRedraw(FALSE);
-	
 	UpdateData(false);
+
 	return TRUE;
 }
 
@@ -104,7 +101,7 @@ CString CHexEditorDlg::IntToHex(int number, int size)
 		number *= -1;
 	}
 
-	std::stack<char> st;
+	std::stack<char> stack;
 
 	while (number > 0)
 	{
@@ -112,31 +109,32 @@ CString CHexEditorDlg::IntToHex(int number, int size)
 		switch (n)
 		{
 		case 15:
-			st.push('F');
+			stack.push('F');
 			break;
 		case 14:
-			st.push('E');
+			stack.push('E');
 			break;
 		case 13:
-			st.push('D');
+			stack.push('D');
 			break;
 		case 12:
-			st.push('C');
+			stack.push('C');
 			break;
 		case 11:
-			st.push('B');
+			stack.push('B');
 			break;
 		case 10:
-			st.push('A');
+			stack.push('A');
 			break;
 		default:
-			st.push('0' + n);
+			stack.push('0' + n);
 		}
 		number /= 16;
 	}
-	while (!st.empty()) {
-		answer = answer + CString(st.top());
-		st.pop();
+
+	while (!stack.empty()) {
+		answer = answer + CString(stack.top());
+		stack.pop();
 	}
 
 	if (size > answer.GetLength())
@@ -162,11 +160,8 @@ void CHexEditorDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CHexEditorDlg, CDialogEx)
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST1, &CHexEditorDlg::OnGetdispinfoList)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST1, &CHexEditorDlg::OnNMCustomdraw)
 END_MESSAGE_MAP()
-
-
-// Обработчики сообщений CHexEditorDlg
-
 
 
 void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
@@ -180,7 +175,6 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 	int itemid = pItem->iItem;
 
 	
-
 	unsigned char symbol = 0;
 
 	//Do the list need text information?
@@ -188,7 +182,7 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 	{
 		CString text;
 
-		// Какая кололнка 
+		// определяем какая информация нужна 
 		if (pItem->iSubItem >= 0 &&
 			pItem->iSubItem < COL_RULER)
 		{
@@ -226,7 +220,6 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 			}
 		}
 
-
 		//Copy the text to the LV_ITEM structure
 		//Maximum number of characters is in pItem->cchTextMax
 		lstrcpyn(pItem->pszText, text, pItem->cchTextMax);
@@ -240,4 +233,45 @@ BOOL CHexEditorDlg::PreTranslateMessage(MSG* pMsg) {
 		if (pMsg->wParam == VK_RETURN)  return TRUE;
 	}
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CHexEditorDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
+
+	switch (pLVCD->nmcd.dwDrawStage)
+	{
+	case CDDS_PREPAINT:
+		*pResult = CDRF_NOTIFYITEMDRAW;
+		break;
+
+	case CDDS_ITEMPREPAINT:
+		*pResult = CDRF_NOTIFYSUBITEMDRAW;
+		break;
+
+	case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
+	{
+		if (pLVCD->iSubItem >= 0 &&
+			pLVCD->iSubItem < COL_RULER)
+		{
+			pLVCD->clrTextBk = RGB(245, 245, 245);
+			break;
+		}
+		if (pLVCD->iSubItem >= COL_RULER &&
+			pLVCD->iSubItem < COL_RULER + COL_ASCII)
+		{
+			pLVCD->clrTextBk = RGB(255, 255, 255);
+			break;
+		}
+		if (pLVCD->iSubItem >= COL_RULER + COL_ASCII &&
+			pLVCD->iSubItem < COL_RULER + COL_ASCII + COL_HEX)
+		{
+			pLVCD->clrTextBk = RGB(245, 245, 245);
+			break;
+		}
+
+	}
+	break;
+	}
+	return;
 }

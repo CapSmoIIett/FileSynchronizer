@@ -1,10 +1,4 @@
-﻿
-// ApplicationDlg.cpp: файл реализации
-//
-
-//#include <Windows.h>
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "framework.h"
 #include "Application.h"
 #include "ApplicationDlg.h"
@@ -12,8 +6,6 @@
 #include "afxdialogex.h"
 #include "WFDTranslator.h"
 #include "HexEditorDlg.h"
-#include "ComparatorDlg.h"
-//#include <tchar.h>
 
 #include <fstream>
 #include <locale>
@@ -47,34 +39,34 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 	, WithFolders(FALSE)
 	, WithContent(FALSE)
 	, WithoutDate(FALSE)
-	, LeftToRight(FALSE)
-	, Equal(FALSE)
-	, NotEqual(FALSE)
-	, RightToLeft(FALSE)
+	, LeftToRight(TRUE)
+	, Equal(TRUE)
+	, NotEqual(TRUE)
+	, RightToLeft(TRUE)
 {
 	CFile file;
 	int startOfSecondPath = 0;
 
 	ScrollPosition = 0;
 	ScrollMutex = NOBODY_SCROLL;
+	
 	// Установка иконки
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);//L"res\\Application"
 
-
-	// Чтение из файла
+	// Чтение из файла путей из прошлой ссесии 
 	try
 	{
-		wchar_t buf[MAX_SIZE_PATH * 2 + 1];
+		wchar_t bufWchar[MAX_SIZE_PATH * 2 + 1];
 		const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
 		
-		std::wifstream f(NAME_OF_FILE, std::ios::binary);
-		f.imbue(utf8_locale);
+		std::wifstream file(NAME_OF_FILE, std::ios::binary);
+		file.imbue(utf8_locale);
 		
-		f >> buf;
+		file >> bufWchar;
 		
-		f.close();
+		file.close();
 
-		CString buffer(buf);
+		CString buffer(bufWchar);
 
 		startOfSecondPath = buffer.Find(SEPARATOR_CHARACTER);
 		if (startOfSecondPath == -1)
@@ -92,7 +84,6 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 		DWORD fileAttrSecond = GetFileAttributes(SecondDirectoryAddress);
 		if (fileAttrSecond == 0xFFFFFFFF)	
 			SecondDirectoryAddress = L"";
-		
 
 	}
 	catch (...)
@@ -104,23 +95,30 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 
 CApplicationDlg::~CApplicationDlg()
 {
-	const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
-	std::wofstream f(NAME_OF_FILE, std::ios::binary | std::ios::trunc);
-	f.imbue(utf8_locale);
-
-	if (!FirstDirectoryAddress.IsEmpty())
+	try
 	{
-		f << FirstDirectoryAddress.GetBuffer();
+		const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+		std::wofstream file(NAME_OF_FILE, std::ios::binary | std::ios::trunc);
+		file.imbue(utf8_locale);
+
+		if (!FirstDirectoryAddress.IsEmpty())
+		{
+			file << FirstDirectoryAddress.GetBuffer();
+		}
+
+		file << SEPARATOR_CHARACTER;
+
+		if (!SecondDirectoryAddress.IsEmpty())
+		{
+			file << SecondDirectoryAddress.GetBuffer();
+		}
+
+		file.close();
 	}
-
-	f << SEPARATOR_CHARACTER;
-
-	if (!SecondDirectoryAddress.IsEmpty())
-	{
-		f << SecondDirectoryAddress.GetBuffer();
+	catch (...)
+	{ 
+		return;
 	}
-
-	f.close();
 }
 
 void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
@@ -168,7 +166,6 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK6, &CApplicationDlg::ChangeCheckNotEqual)
 	ON_BN_CLICKED(IDC_CHECK7, &CApplicationDlg::ChangeCheckRightToLeft)
 
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -194,6 +191,7 @@ BOOL CApplicationDlg::OnInitDialog()
 		}
 	}
 
+	// Блокировка кнопок синхронизации
 	SynchronizeLeftToRightButton.EnableWindow(FALSE);
 	SynchronizeRightToLeftButton.EnableWindow(FALSE);
 
@@ -202,16 +200,12 @@ BOOL CApplicationDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Крупный значок
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
-	LeftToRight = TRUE;
-	Equal = TRUE;
-	NotEqual = TRUE;
-	RightToLeft = TRUE;
-
 	UpdateData(false);
 
+	// Настройка списков
+	ListFirstFolder.SetExtendedStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT);
+	ListSecondFolder.SetExtendedStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT);
 
-	//ListComparisonResults.EnableScrollBar(LVS_NOSCROLL);
-	//ListComparisonResults.ModifyStyle(LVS_NOSCROLL, 0);
 	ListComparisonResults.InsertColumn(0, L"Comparison", LVCFMT_LEFT, SIZE_COL_COMP);
 
 	ListFirstFolder.InsertColumn(0, L"Имя",		 LVCFMT_LEFT, SIZE_COL_NAME);
@@ -247,6 +241,8 @@ void CApplicationDlg::OnSysCommand(UINT nID, LPARAM lParam)
 void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CString path)
 {
 	CString folder = L"";
+	int item = 0;
+
 	if (path != L"")
 	{
 		BOOL flag = 1;
@@ -265,7 +261,6 @@ void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CS
 		}
 	}
 
-	int item = 0;
 	if (file.size == L"0")
 	{
 		item = list.InsertItem(number, folder + file.name + "\\", -1);
@@ -274,6 +269,7 @@ void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CS
 	{
 		item = list.InsertItem(number, folder + file.name, -1);
 	}
+
 	list.SetItemText(item, 1, file.type);
 	list.SetItemText(item, 2, file.size);
 	list.SetItemText(item, 3, file.date);
@@ -283,6 +279,7 @@ void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CS
 void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile> &files)
 {
 	WIN32_FIND_DATA wfd;
+	int number = 0;
 
 	HANDLE const handle = FindFirstFileW(folder + L"\\*", &wfd);
 
@@ -305,10 +302,9 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 	// Можно отсортировать вектор
 
 	// Записываем в список
-	int i = 0;
 	for (auto file : files) 
 	{
-		insertInList(list, file, i++);
+		insertInList(list, file, number++);
 	}
 
 	FindClose(handle);
@@ -320,7 +316,7 @@ BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) {
 		{
 			return TRUE;
 		}
-		if (pMsg->wParam == VK_RETURN)											// Нажате на Enter
+		if (pMsg->wParam == VK_RETURN)	// Нажате на Enter
 		{
 			UpdateAll();
 			return TRUE;
@@ -331,7 +327,9 @@ BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) {
 
 void CApplicationDlg::UpdateAll(BOOL ready)
 {
+	// Переключение режима
 	ReadyToSync = ready;
+
 	if (ReadyToSync)
 	{
 		SynchronizeLeftToRightButton.EnableWindow(TRUE);
@@ -354,11 +352,11 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 				continue;
 			}
 			
+			// Проверка checkbox-ов
 			switch (file.ratio)
 			{
 			case LEFTtoRIGHT:	
 			{
-				//ListFirstFolder.GetItem();
 				if (!LeftToRight) continue;
 				break;
 			}
@@ -388,13 +386,16 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 	{
 		SynchronizeLeftToRightButton.EnableWindow(FALSE);
 		SynchronizeRightToLeftButton.EnableWindow(FALSE);
+
 		Comparasions.clear();
 		ListComparisonResults.DeleteAllItems();
+
 		if (!FirstDirectoryAddress.IsEmpty())
 			UpdateList(ListFirstFolder, FirstDirectoryAddress, FilesFirstList);
 		if (!SecondDirectoryAddress.IsEmpty())
 			UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
 	}
+
 	UpdateData(false);
 }
 

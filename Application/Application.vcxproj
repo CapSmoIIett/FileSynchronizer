@@ -185,7 +185,6 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationDlg.h" />
-    <ClInclude Include="ComparatorDlg.h" />
     <ClInclude Include="ComparisonResult.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="AboutDlg.h" />
@@ -202,7 +201,6 @@
     <ClCompile Include="ApplicationComparisons.cpp" />
     <ClCompile Include="ApplicationDlg.cpp" />
     <ClCompile Include="ApplicationReactions.cpp" />
-    <ClCompile Include="ComparatorDlg.cpp" />
     <ClCompile Include="HexEditorDlg.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
