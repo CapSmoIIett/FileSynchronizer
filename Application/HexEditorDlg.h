@@ -18,6 +18,8 @@ class CHexEditorDlg : public CDialogEx
 	#endif
 
 	protected:
+		HICON m_hIcon;
+
 		virtual void DoDataExchange(CDataExchange* pDX);    // поддержка DDX/DDV
 		virtual BOOL OnInitDialog();
 

@@ -22,6 +22,9 @@ CHexEditorDlg::CHexEditorDlg(WFDFile wfd, CWnd* pParent) :
 	CDialogEx(IDD_DIALOG1, pParent),
 	CurrentFile(wfd)
 {	
+	// Установка иконки
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
 	try
 	{
 		handle = CreateFile(CurrentFile.fullName, GENERIC_READ, 0, NULL,
@@ -73,6 +76,11 @@ BOOL CHexEditorDlg::OnInitDialog() {
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
+
+	// Задает значок для этого диалогового окна.  Среда делает это автоматически,
+	//  если главное окно приложения не является диалоговым
+	SetIcon(m_hIcon, TRUE);			// Крупный значок
+	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
 	DataTable.SetExtendedStyle(LVS_EX_DOUBLEBUFFER);
 

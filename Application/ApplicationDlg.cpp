@@ -32,7 +32,7 @@
 #endif
 
 
-CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
+CApplicationDlg::CApplicationDlg(CWnd* pParent)
 	: CDialogEx(IDD_APPLICATION_DIALOG, pParent)
 	, FirstDirectoryAddress(_T(""))
 	, SecondDirectoryAddress(_T(""))
@@ -61,7 +61,10 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent /*=nullptr*/)
 		
 		std::wifstream file(NAME_OF_FILE, std::ios::binary);
 		file.imbue(utf8_locale);
-		
+
+		if (!file.is_open())
+			return;
+
 		file >> bufWchar;
 		
 		file.close();
@@ -166,6 +169,9 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK6, &CApplicationDlg::ChangeCheckNotEqual)
 	ON_BN_CLICKED(IDC_CHECK7, &CApplicationDlg::ChangeCheckRightToLeft)
 
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST4, &CApplicationDlg::OnNMCustomdraw)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST6, &CApplicationDlg::OnNMCustomdrawListComparnResult)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -395,6 +401,11 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 		if (!SecondDirectoryAddress.IsEmpty())
 			UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
 	}
+
+	for (int i = 0; i < ListFirstFolder.GetHeaderCtrl()->GetItemCount(); ++i)
+		ListFirstFolder.SetColumnWidth(i, LVSCW_AUTOSIZE_USEHEADER);
+	for (int i = 0; i < ListSecondFolder.GetHeaderCtrl()->GetItemCount(); ++i)
+		ListSecondFolder.SetColumnWidth(i, LVSCW_AUTOSIZE_USEHEADER);
 
 	UpdateData(false);
 }

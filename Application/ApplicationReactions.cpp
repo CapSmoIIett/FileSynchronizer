@@ -282,3 +282,115 @@ void CApplicationDlg::ChangeCheckRightToLeft()
 	RightToLeft = !RightToLeft;
 	UpdateAll(ReadyToSync);
 }
+
+void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
+
+
+	switch (pLVCD->nmcd.dwDrawStage)
+	{
+	case CDDS_PREPAINT:
+		*pResult = CDRF_NOTIFYITEMDRAW;
+		break;
+
+	case CDDS_ITEMPREPAINT:
+		*pResult = CDRF_NOTIFYSUBITEMDRAW;
+		break;
+
+	case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
+	{
+		if (pLVCD->nmcd.dwItemSpec % 2 == 0)
+			pLVCD->clrTextBk = RGB(245, 245, 245);
+		else
+			pLVCD->clrTextBk = RGB(255, 255, 255);
+
+		if (ReadyToSync)
+		{
+			if (pLVCD->nmcd.dwItemSpec >= Comparasions.size())
+				break;
+
+			switch (Comparasions[pLVCD->nmcd.dwItemSpec].ratio)
+			{
+			case EQUAL:
+			{
+				pLVCD->clrText = RGB(0, 0, 0);
+				break;
+			}
+			case NOTEQUAL:
+			{
+				pLVCD->clrText = RGB(255, 0, 0);
+				break;
+			}
+			case LEFTtoRIGHT:
+			{
+				pLVCD->clrText = RGB(0, 255, 0);
+				break;
+			}
+			case RIGHTtoLEFT:
+			{
+				pLVCD->clrText = RGB(0, 0, 255);
+				break;
+			}
+			}
+		}
+	}
+	break;
+	}
+	return;
+}
+
+void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
+
+
+	switch (pLVCD->nmcd.dwDrawStage)
+	{
+	case CDDS_PREPAINT:
+		*pResult = CDRF_NOTIFYITEMDRAW;
+		break;
+
+	case CDDS_ITEMPREPAINT:
+		*pResult = CDRF_NOTIFYSUBITEMDRAW;
+		break;
+
+	case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
+	{
+
+		if (ReadyToSync)
+		{
+			
+			if (pLVCD->nmcd.dwItemSpec >= Comparasions.size() ||
+				pLVCD->nmcd.dwItemSpec == 0)								
+				break;													// Central list has one empty row (0) (it's instead head of table)
+
+			switch (Comparasions[pLVCD->nmcd.dwItemSpec - 1].ratio)
+			{
+			case EQUAL:
+			{
+				pLVCD->clrText = RGB(0, 0, 0);
+				break;
+			}
+			case NOTEQUAL:
+			{
+				pLVCD->clrText = RGB(255, 0, 0);
+				break;
+			}
+			case LEFTtoRIGHT:
+			{
+				pLVCD->clrText = RGB(0, 255, 0);
+				break;
+			}
+			case RIGHTtoLEFT:
+			{
+				pLVCD->clrText = RGB(0, 0, 255);
+				break;
+			}
+			}
+		}
+	}
+	break;
+	}
+	return;
+}

@@ -60,7 +60,9 @@ class CApplicationDlg : public CDialogEx
 		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);
 
 		afx_msg void CompareFolders();
-		
+
+		afx_msg void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pResult);
 		// Обновление списка файлов
 		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
 		void insertInList(CListCtrl& list, WFDFile file, int number, CString path = L"");
@@ -69,7 +71,6 @@ class CApplicationDlg : public CDialogEx
 		void UpdateAll(BOOL ready = 0);
 
 		// Функции синхронизации
-		void syncNotEqual(WFDFile first, WFDFile second);
 		void syncLeftToRight(WFDFile first, WFDFile second);
 		void syncRightToLeft(WFDFile first, WFDFile second);
 
@@ -121,4 +122,5 @@ class CApplicationDlg : public CDialogEx
 
 		// Результаты сравнения
 		std::vector<ComparisonResult> Comparasions;
+
 };
