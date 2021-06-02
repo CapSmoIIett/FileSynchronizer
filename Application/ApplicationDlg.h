@@ -64,7 +64,7 @@ class CApplicationDlg : public CDialogEx
 
 		afx_msg void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pResult);
-
+		
 		// For PopupMenu
 		afx_msg void MenuLeftToRight();
 		afx_msg void MenuRightToLeft();
@@ -125,8 +125,8 @@ class CApplicationDlg : public CDialogEx
 
 		BOOL ReadyToSync;
 
-		CButton SynchronizeLeftToRightButton;
-		CButton SynchronizeRightToLeftButton;
+		CMFCButton SynchronizeLeftToRightButton;
+		CMFCButton SynchronizeRightToLeftButton;
 
 		std::vector<WFDFile> FilesFirstList;
 		std::vector<WFDFile> FilesSecondList;

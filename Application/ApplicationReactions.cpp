@@ -484,3 +484,4 @@ void CApplicationDlg::MenuRightToLeft()
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);
 }
+

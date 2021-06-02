@@ -173,10 +173,7 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST4, &CApplicationDlg::OnNMCustomdraw)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST6, &CApplicationDlg::OnNMCustomdrawListComparnResult)
-	
-
-	//ON_COMMAND_RANGE(GetDlgItem(this, PopupMenu), , &CApplicationDlg::MenuLeftToRight)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST6, &CApplicationDlg::OnNMCustomdrawListComparnResult) 
 
 	ON_WM_ACTIVATE(&CApplicationDlg::OnActivate)
 
@@ -206,10 +203,13 @@ BOOL CApplicationDlg::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
+	
 
 	PopupMenu.LoadMenu(IDR_MENU1);
 	ASSERT(PopupMenu != NULL);
 
+	SynchronizeLeftToRightButton.SetTextColor(RGB(0, 0, 255));
+	SynchronizeRightToLeftButton.SetTextColor(RGB(0, 255, 0));
 	// Блокировка кнопок синхронизации
 	SynchronizeLeftToRightButton.EnableWindow(FALSE);
 	SynchronizeRightToLeftButton.EnableWindow(FALSE);

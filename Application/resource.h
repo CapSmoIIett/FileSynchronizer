@@ -32,7 +32,7 @@
 #define IDC_BUTTON4                     1020
 #define SYNC_BUTTON                     1020
 #define ID_32771                        32771
-#define ID_32772                       32776
+#define ID_32772                        32776
 
 // Next default values for new objects
 // 
