@@ -13,6 +13,7 @@
 // это автоматически выполняется рабочей областью.
 void CApplicationDlg::OnPaint()
 {
+	UpdateAll(ReadyToSync);
 	if (IsIconic())
 	{
 		CPaintDC dc(this); // контекст устройства для рисования
@@ -393,4 +394,9 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 	break;
 	}
 	return;
+}
+
+void CApplicationDlg::OnActivate(UINT, CWnd*, BOOL)
+{
+	UpdateAll(ReadyToSync);
 }

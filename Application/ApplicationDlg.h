@@ -63,6 +63,9 @@ class CApplicationDlg : public CDialogEx
 
 		afx_msg void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pResult);
+
+		afx_msg void OnActivate(UINT, CWnd*, BOOL);
+
 		// Обновление списка файлов
 		void UpdateList(CListCtrl& list, CString folder, std::vector<WFDFile>&);
 		void insertInList(CListCtrl& list, WFDFile file, int number, CString path = L"");

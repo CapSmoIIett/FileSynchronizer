@@ -172,6 +172,9 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST4, &CApplicationDlg::OnNMCustomdraw)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST6, &CApplicationDlg::OnNMCustomdrawListComparnResult)
+
+	ON_WM_ACTIVATE(&CApplicationDlg::OnActivate)
+
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -211,6 +214,7 @@ BOOL CApplicationDlg::OnInitDialog()
 	// Настройка списков
 	ListFirstFolder.SetExtendedStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT);
 	ListSecondFolder.SetExtendedStyle(LVS_EX_DOUBLEBUFFER | LVS_EX_FULLROWSELECT);
+	ListComparisonResults.SetExtendedStyle(LVS_EX_DOUBLEBUFFER);
 
 	ListComparisonResults.InsertColumn(0, L"Comparison", LVCFMT_LEFT, SIZE_COL_COMP);
 
@@ -305,7 +309,6 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 			translator.getDate(), translator.getAttr()));
 	} while (NULL != FindNextFileW(handle, &wfd));
 
-	// Можно отсортировать вектор
 
 	// Записываем в список
 	for (auto file : files) 
@@ -316,18 +319,24 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 	FindClose(handle);
 }
 
-BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) {
+BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) 
+{
+
 	if (pMsg->message == WM_KEYDOWN) {
-		if (pMsg->wParam == VK_ESCAPE)
+		switch (pMsg->wParam)
+		{
+		case VK_ESCAPE:
 		{
 			return TRUE;
 		}
-		if (pMsg->wParam == VK_RETURN)	// Нажате на Enter
+		case VK_RETURN:			// Нажате на Enter
 		{
 			UpdateAll();
 			return TRUE;
 		}
+		}
 	}
+
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
