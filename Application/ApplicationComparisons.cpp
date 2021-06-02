@@ -129,19 +129,33 @@ std::vector<WFDFile> CApplicationDlg::ViewDirectory(CString path)
 
 ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 {
+	ComparisonResult answer(first, second, EQUAL);
 	if (!WithoutDate)
 		if (first.date != second.date)
-			return ComparisonResult(first, second, NOTEQUAL);
+		{
+			answer.ratio = NOTEQUAL;
+			answer.difference |= DATE;
+		}
 
-	if (first.size > second.size)
-		return ComparisonResult(first, second, LEFTtoRIGHT);
-	if (first.size < second.size)
-		return ComparisonResult(first, second, RIGHTtoLEFT);
+	if (first.size != second.size)
+	{
+		answer.ratio = NOTEQUAL;
+		answer.difference |= SIZE;
+	}
 	if (first.attr != second.attr)
-		return ComparisonResult(first, second, NOTEQUAL);
+	{
+		answer.ratio = NOTEQUAL;
+		answer.difference |= ATTR;
+	}
 
 	if (WithContent)
 	{
+		if (first.size != second.size)
+		{
+			answer.ratio = NOTEQUAL;
+			answer.difference |= CONTENT;
+			return answer;
+		}
 		int len = _ttoi(first.size);		// Размеры одинаковы
 
 		try
@@ -154,25 +168,40 @@ ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 
 			if (fileFirst.Open(first.fullName, CFile::modeRead | CFile::typeBinary) == 0)
 			{
-				return ComparisonResult(first, second, NOTEQUAL);
+				answer.ratio = NOTEQUAL;
+				answer.difference |= CONTENT;
+				return answer;
 			}
 
 			if (fileSecond.Open(second.fullName, CFile::modeRead | CFile::typeBinary) == 0)
 			{
-				return ComparisonResult(first, second, NOTEQUAL);
+				answer.ratio = NOTEQUAL;
+				answer.difference |= CONTENT;
+				return answer;
 			}
 
 			if (fileFirst.Read((void*)pointerFirst, sizeof(char) * len) < (size_t)len)
-				return ComparisonResult(first, second, NOTEQUAL);
+			{
+				answer.ratio = NOTEQUAL;
+				answer.difference |= CONTENT;
+				return answer;
+			}
 			if (fileSecond.Read((void*)pointerSecond, sizeof(char) * len) < (size_t)len)
-				return ComparisonResult(first, second, NOTEQUAL);
+			{
+				answer.ratio = NOTEQUAL;
+				answer.difference |= CONTENT;
+				return answer;
+			}
 
 			for (int i = 0; i < len; i++)
 				if (pointerFirst[i] != pointerSecond[i])
 				{
 					fileFirst.Close();
 					fileSecond.Close();
-					return ComparisonResult(first, second, NOTEQUAL);
+
+					answer.ratio = NOTEQUAL;
+					answer.difference |= CONTENT;
+					return answer;
 				}
 
 			fileFirst.Close();
@@ -180,11 +209,13 @@ ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 		}
 		catch (...)
 		{
-			return  ComparisonResult(first, second, NOTEQUAL);
+			answer.ratio = NOTEQUAL;
+			answer.difference |= CONTENT;
+			return answer;
 		}
 	}
 
-	return ComparisonResult(first, second, EQUAL);
+	return answer;
 }
 
 void CApplicationDlg::UpdateComparisonList(int begin)

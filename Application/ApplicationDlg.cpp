@@ -6,6 +6,7 @@
 #include "afxdialogex.h"
 #include "WFDTranslator.h"
 #include "HexEditorDlg.h"
+#include "resource.h"
 
 #include <fstream>
 #include <locale>
@@ -157,6 +158,7 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 
 	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST5, &CApplicationDlg::SelectElementFirstTable)
 	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST4, &CApplicationDlg::SelectElementSecondTable)
+	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST6, &CApplicationDlg::SelectElementCompaComparisonTable)
 
 	ON_BN_CLICKED(IDC_BUTTON4, &CApplicationDlg::SynchronizeLeftToRight)
 	ON_BN_CLICKED(IDC_BUTTON5, &CApplicationDlg::SynchronizeRightToLeft)
@@ -172,9 +174,14 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST4, &CApplicationDlg::OnNMCustomdraw)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST6, &CApplicationDlg::OnNMCustomdrawListComparnResult)
+	
+
+	//ON_COMMAND_RANGE(GetDlgItem(this, PopupMenu), , &CApplicationDlg::MenuLeftToRight)
 
 	ON_WM_ACTIVATE(&CApplicationDlg::OnActivate)
 
+	ON_COMMAND(ID_32771, &CApplicationDlg::MenuLeftToRight)
+	ON_COMMAND(ID_32772, &CApplicationDlg::MenuRightToLeft)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -199,6 +206,9 @@ BOOL CApplicationDlg::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
+
+	PopupMenu.LoadMenu(IDR_MENU1);
+	ASSERT(PopupMenu != NULL);
 
 	// Блокировка кнопок синхронизации
 	SynchronizeLeftToRightButton.EnableWindow(FALSE);
@@ -425,6 +435,4 @@ int  CApplicationDlg::GetItemHeight(CListCtrl& list)
 	list.GetSubItemRect(1, 1, LVIR_BOUNDS, ItemRect);
 	return ItemRect.bottom - ItemRect.top;
 }
-
-
 

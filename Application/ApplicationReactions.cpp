@@ -140,6 +140,51 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = 0;
 }
 
+void CApplicationDlg::SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+
+	if (ReadyToSync)
+	{
+		auto file = Comparasions[pNMIA->iItem - 1];
+		switch (file.ratio)
+		{
+		default:
+		{
+			break;
+		}
+		case NOTEQUAL:
+		{
+		
+			POINT point;
+
+			GetCursorPos(&point);
+
+			numberSelectedItem = pNMIA->iItem - 1;
+			PopupMenu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON,
+				point.x, point.y, this);
+
+			
+
+			break;
+		}
+		case LEFTtoRIGHT:
+		{
+			syncLeftToRight(file.FirstFile, file.SecondFile);
+			break;
+		}
+		case RIGHTtoLEFT:
+		{
+			syncRightToLeft(file.FirstFile, file.SecondFile);
+			break;
+		}
+		}
+
+		Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+		UpdateAll(ReadyToSync);
+	}
+}
+
 void CApplicationDlg::CompareFolders()
 {
 	UpdateData(true);
@@ -320,7 +365,22 @@ void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 			}
 			case NOTEQUAL:
 			{
-				pLVCD->clrText = RGB(255, 0, 0);
+				auto file = Comparasions[pLVCD->nmcd.dwItemSpec];
+				if (file.isDifContent())		// If files has different content color all columns
+				{
+					pLVCD->clrText = RGB(255, 0, 0);
+					return;
+				}
+				if (file.isDifType() &&  pLVCD->iSubItem == 1)
+					pLVCD->clrText = RGB(255, 0, 0);
+				else if (file.isDifSize() && pLVCD->iSubItem == 2)
+					pLVCD->clrText = RGB(255, 0, 0);
+				else if (file.isDifDate() && pLVCD->iSubItem == 3)
+					pLVCD->clrText = RGB(255, 0, 0);
+				else if (file.isDifAttr() && pLVCD->iSubItem == 4)
+					pLVCD->clrText = RGB(255, 0, 0);
+				else
+					pLVCD->clrText = RGB(0, 0, 0);
 				break;
 			}
 			case LEFTtoRIGHT:
@@ -362,7 +422,7 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 		if (ReadyToSync)
 		{
 			
-			if (pLVCD->nmcd.dwItemSpec >= Comparasions.size() ||
+			if (pLVCD->nmcd.dwItemSpec >= Comparasions.size() + 1 ||
 				pLVCD->nmcd.dwItemSpec == 0)								
 				break;													// Central list has one empty row (0) (it's instead head of table)
 
@@ -398,5 +458,29 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 
 void CApplicationDlg::OnActivate(UINT, CWnd*, BOOL)
 {
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::MenuLeftToRight()
+{
+	auto file = Comparasions[numberSelectedItem];
+
+	syncLeftToRight(file.FirstFile, file.SecondFile);
+
+	numberSelectedItem = 0;
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::MenuRightToLeft()
+{
+	auto file = Comparasions[numberSelectedItem];
+
+	syncRightToLeft(file.FirstFile, file.SecondFile);
+
+	numberSelectedItem = 0;
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);
 }

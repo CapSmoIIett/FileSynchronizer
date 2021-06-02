@@ -7,12 +7,14 @@
 #include <sys/stat.h>
 #include <stack>
 
-#define AMOUNT_COL		48		// 16 - линейка, 16 - ascii представления, 16 - 16-ое значение 
-#define COL_RULER		16
+#define AMOUNT_COL		33		// 1 - линейка, 16 - ascii представления, 16 - 16-ое значение 
+#define COL_RULER		1
 #define COL_ASCII		16
 #define COL_HEX			16
 #define FFFFFFFF		4294967295	// 0FFFFFFFFh in dec
-#define SIZE_COL		20
+#define SIZE_COL_RULER	80
+#define SIZE_COL		25
+#define SIZE_COL_HEX	35
 
 
 IMPLEMENT_DYNAMIC(CHexEditorDlg, CDialogEx)
@@ -90,15 +92,19 @@ BOOL CHexEditorDlg::OnInitDialog() {
 
 	int amountOfRow = 0;
 
-	if (_ttoi(CurrentFile.size) % COL_RULER == 0)
-		amountOfRow = _ttoi(CurrentFile.size) / COL_RULER;
+	if (_ttoi(CurrentFile.size) % COL_HEX == 0)
+		amountOfRow = _ttoi(CurrentFile.size) / COL_HEX;
 	else
-		amountOfRow = _ttoi(CurrentFile.size) / COL_RULER + 1;
+		amountOfRow = _ttoi(CurrentFile.size) / COL_HEX + 1;
 		
 	DataTable.SetItemCount(amountOfRow);
 
-	for (int i = 0; i < AMOUNT_COL; i++)	// Создание колонок таблицы
+	int i = 0;
+	DataTable.InsertColumn(i++, L"", LVCFMT_RIGHT, SIZE_COL_RULER);
+	for (; i < COL_RULER + COL_ASCII; i++)	// Создание колонок таблицы
 		DataTable.InsertColumn(i, L"", LVCFMT_LEFT, SIZE_COL);
+	for (; i < COL_RULER + COL_ASCII + COL_HEX; i++)
+		DataTable.InsertColumn(i, L"", LVCFMT_LEFT, SIZE_COL_HEX);
 
 	UpdateData(false);
 
@@ -196,8 +202,9 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 		if (pItem->iSubItem >= 0 &&
 			pItem->iSubItem < COL_RULER)
 		{
-			CString ruler = IntToHex(pItem->iItem, COL_RULER);
-			text = ruler[pItem->iSubItem];
+			CString ruler;
+			ruler.Format(L"%d", pItem->iItem * 16);
+			text = ruler;
 		}
 
 		if (pItem->iSubItem >= COL_RULER &&
@@ -283,5 +290,7 @@ void CHexEditorDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 	break;
 	}
+
+
 	return;
 }

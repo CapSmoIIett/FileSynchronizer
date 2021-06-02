@@ -58,11 +58,16 @@ class CApplicationDlg : public CDialogEx
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* pResult);
 
 		afx_msg void CompareFolders();
 
 		afx_msg void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pResult);
+
+		// For PopupMenu
+		afx_msg void MenuLeftToRight();
+		afx_msg void MenuRightToLeft();
 
 		afx_msg void OnActivate(UINT, CWnd*, BOOL);
 
@@ -79,6 +84,8 @@ class CApplicationDlg : public CDialogEx
 
 		int GetItemHeight(CListCtrl&);
 
+		// For PopupMenu
+		int numberSelectedItem;
 
 		// Обработчик нажатий (для отключения Enter и Esc)
 		BOOL PreTranslateMessage(MSG* pMsg);	
@@ -105,6 +112,7 @@ class CApplicationDlg : public CDialogEx
 		CListCtrl ListSecondFolder;
 		CListCtrl ListComparisonResults;
 		
+		CMenu PopupMenu;
 
 		BOOL WithFolders;
 		BOOL WithContent;
