@@ -73,10 +73,13 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent)
 		CString buffer(bufWchar);
 
 		startOfSecondPath = buffer.Find(SEPARATOR_CHARACTER);
+
 		if (startOfSecondPath == -1)
 			return;
+
 		if (startOfSecondPath != 0)
 			FirstDirectoryAddress = buffer.Left(startOfSecondPath);
+
 		if ((size_t)startOfSecondPath != buffer.GetLength() - 1)
 			SecondDirectoryAddress = buffer.Right(buffer.GetLength() - 
 				(size_t)startOfSecondPath - 1);	// - 1 для SEPARATOR_CHARACTER
@@ -85,6 +88,7 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent)
 		DWORD fileAttrFirst = GetFileAttributes(FirstDirectoryAddress);
 		if (fileAttrFirst == 0xFFFFFFFF)	
 			FirstDirectoryAddress = L"";
+
 		DWORD fileAttrSecond = GetFileAttributes(SecondDirectoryAddress);
 		if (fileAttrSecond == 0xFFFFFFFF)	
 			SecondDirectoryAddress = L"";
@@ -214,6 +218,7 @@ BOOL CApplicationDlg::OnInitDialog()
 
 	SynchronizeLeftToRightButton.SetTextColor(GREEN);
 	SynchronizeRightToLeftButton.SetTextColor(BLUE);
+
 	// Блокировка кнопок синхронизации
 	SynchronizeLeftToRightButton.EnableWindow(FALSE);
 	SynchronizeRightToLeftButton.EnableWindow(FALSE);
@@ -271,12 +276,14 @@ void CApplicationDlg::insertInList(CListCtrl& list, WFDFile file, int number, CS
 	{
 		BOOL flag = 1;
 		int i = 0;
+
 		for (; i < path.GetLength(); i++)
 			if (path[i] != file.fullName[i])
 			{
 				flag = 0;
 				break;
 			}
+
 		if (flag)
 		{
 			CString temp = file.fullName;
@@ -335,7 +342,6 @@ void CApplicationDlg::UpdateList(CListCtrl& list, CString folder, std::vector<WF
 
 BOOL CApplicationDlg::PreTranslateMessage(MSG* pMsg) 
 {
-
 	if (pMsg->message == WM_KEYDOWN) {
 		switch (pMsg->wParam)
 		{
@@ -374,6 +380,7 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 
 		int numList = 0;
 		int numFile = 0;
+
 		for (auto file : Comparasions)
 		{	
 			// We count them at the beginning, so as not to do it at each end

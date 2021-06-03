@@ -147,6 +147,7 @@ void CApplicationDlg::SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* 
 	if (ReadyToSync)
 	{
 		auto file = Comparasions[pNMIA->iItem - 1];
+
 		switch (file.ratio)
 		{
 		default:
@@ -154,8 +155,7 @@ void CApplicationDlg::SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* 
 			break;
 		}
 		case NOTEQUAL:
-		{
-		
+		{	
 			POINT point;
 
 			GetCursorPos(&point);
@@ -163,8 +163,6 @@ void CApplicationDlg::SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* 
 			numberSelectedItem = pNMIA->iItem - 1;
 			PopupMenu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON,
 				point.x, point.y, this);
-
-			
 
 			break;
 		}
@@ -198,23 +196,23 @@ void CApplicationDlg::CompareFolders()
 
 void CApplicationDlg::SynchronizeLeftToRight()
 {
-	for (ComparisonResult i : Comparasions)
+	for (ComparisonResult comparasions : Comparasions)
 	{
-		switch (i.ratio)
+		switch (comparasions.ratio)
 		{
 		default: continue;
 
 		case NOTEQUAL:
 		{
 			if (!NotEqual)break;								// ѕропускаем если это не выбранно пользователем (checkbox)
-			syncLeftToRight(i.FirstFile, i.SecondFile);
+			syncLeftToRight(comparasions.FirstFile, comparasions.SecondFile);
 			break;
 		}
 
 		case LEFTtoRIGHT:
 		{
 			if (!LeftToRight) break;
-			syncLeftToRight(i.FirstFile, i.SecondFile);
+			syncLeftToRight(comparasions.FirstFile, comparasions.SecondFile);
 			break;
 		}
 		}
@@ -227,22 +225,22 @@ void CApplicationDlg::SynchronizeLeftToRight()
 
 void CApplicationDlg::SynchronizeRightToLeft()
 {
-	for (ComparisonResult i : Comparasions)
+	for (ComparisonResult comparasions : Comparasions)
 	{
-		switch (i.ratio)
+		switch (comparasions.ratio)
 		{
 		default: continue;
 
 		case NOTEQUAL:
 		{
 			if (!NotEqual)break;								// ѕропускаем если это не выбранно пользователем (checkbox)
-			syncRightToLeft(i.FirstFile, i.SecondFile);
+			syncRightToLeft(comparasions.FirstFile, comparasions.SecondFile);
 			break;
 		}
 		case RIGHTtoLEFT:
 		{
 			if (!RightToLeft) break;
-			syncRightToLeft(i.FirstFile, i.SecondFile);
+			syncRightToLeft(comparasions.FirstFile, comparasions.SecondFile);
 			break;
 		}
 		}
@@ -291,7 +289,6 @@ void CApplicationDlg::BeginScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult)
 		int offset = 0;
 		int pos = ListSecondFolder.GetScrollPos(SB_VERT);
 
-
 		offset = (pos - ScrollPosition) * GetItemHeight(ListFirstFolder);
 		ListFirstFolder.Scroll(CSize(0, offset));
 		ListFirstFolder.SetScrollPos(SB_VERT, pos);
@@ -336,7 +333,6 @@ void CApplicationDlg::ChangeCheckRightToLeft()
 void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
-
 
 	switch (pLVCD->nmcd.dwDrawStage)
 	{
@@ -409,7 +405,6 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 {
 	LPNMLVCUSTOMDRAW pLVCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
 
-
 	switch (pLVCD->nmcd.dwDrawStage)
 	{
 	case CDDS_PREPAINT:
@@ -422,10 +417,8 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 
 	case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
 	{
-
 		if (ReadyToSync)
-		{
-			
+		{	
 			if (pLVCD->nmcd.dwItemSpec >= Comparasions.size() + 1 ||
 				pLVCD->nmcd.dwItemSpec == 0)								
 				break;													// Central list has one empty row (0) (it's instead head of table)

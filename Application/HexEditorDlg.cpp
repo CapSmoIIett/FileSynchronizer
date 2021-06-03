@@ -33,7 +33,6 @@ CHexEditorDlg::CHexEditorDlg(WFDFile wfd, CWnd* pParent) :
 			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (handle == INVALID_HANDLE_VALUE) return;
 
-
 		HANDLE mappFile = CreateFileMapping(handle, NULL, PAGE_READONLY, 0, 0, NULL);
 		if (mappFile == NULL)
 		{
@@ -190,7 +189,6 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 	//Which item number?
 	int itemid = pItem->iItem;
 
-	
 	unsigned char symbol = 0;
 
 	//Do the list need text information?
@@ -290,7 +288,5 @@ void CHexEditorDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 	break;
 	}
-
-
 	return;
 }

@@ -12,6 +12,7 @@
 class CHexEditorDlg : public CDialogEx
 {
 		DECLARE_DYNAMIC(CHexEditorDlg)
+
 	public:
 		CHexEditorDlg(WFDFile wfd, CWnd* pParent = nullptr);   // стандартный конструктор
 		virtual ~CHexEditorDlg();

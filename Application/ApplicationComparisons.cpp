@@ -99,6 +99,7 @@ std::vector<ComparisonResult> CApplicationDlg::CompareAll(std::vector<WFDFile> F
 		{
 			if (SecondList[i].size == L"0")
 				if (!WithFolders) continue;
+
 			result.push_back(ComparisonResult(WFDFile(firstDir), SecondList[i], RIGHTtoLEFT));
 		}
 	}

@@ -5,6 +5,7 @@
 // WIN32_FIND_DATA - структура ОС Windows для описания файлов
 // WFDFile - хранит необходимые поля данной структуре в строковом формате (для удобства записи)
 struct WFDFile {
+
 	CString fullName;
 	CString name;
 	CString type;
