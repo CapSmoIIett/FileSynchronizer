@@ -212,8 +212,8 @@ BOOL CApplicationDlg::OnInitDialog()
 	PopupMenu.LoadMenu(IDR_MENU1);
 	ASSERT(PopupMenu != NULL);
 
-	SynchronizeLeftToRightButton.SetTextColor(RGB(0, 255, 0));
-	SynchronizeRightToLeftButton.SetTextColor(RGB(0, 0, 255));
+	SynchronizeLeftToRightButton.SetTextColor(GREEN);
+	SynchronizeRightToLeftButton.SetTextColor(BLUE);
 	// Блокировка кнопок синхронизации
 	SynchronizeLeftToRightButton.EnableWindow(FALSE);
 	SynchronizeRightToLeftButton.EnableWindow(FALSE);
@@ -361,6 +361,9 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 
 	if (ReadyToSync)
 	{
+		// WE will remove all unnecessary elements thus, the error with the coloring will disappear
+		std::vector<int> toRemove;
+
 		SynchronizeLeftToRightButton.EnableWindow(TRUE);
 		SynchronizeRightToLeftButton.EnableWindow(TRUE);
 
@@ -369,15 +372,19 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 		ListFirstFolder.DeleteAllItems();
 		ListSecondFolder.DeleteAllItems();
 
-		int i = 0;
+		int numList = 0;
+		int numFile = 0;
 		for (auto file : Comparasions)
 		{	
+			// We count them at the beginning, so as not to do it at each end
+			numFile++;
+
 			if (file.FirstFile.size == L"0" &&
 				file.SecondFile.size == L"0")
 			{
-				insertInList(ListFirstFolder, file.FirstFile, i, FirstDirectoryAddress);
-				insertInList(ListSecondFolder, file.SecondFile, i, SecondDirectoryAddress);
-				i++;
+				insertInList(ListFirstFolder, file.FirstFile, numList, FirstDirectoryAddress);
+				insertInList(ListSecondFolder, file.SecondFile, numList, SecondDirectoryAddress);
+				numList++;
 				continue;
 			}
 			
@@ -386,30 +393,49 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 			{
 			case LEFTtoRIGHT:	
 			{
-				if (!LeftToRight) continue;
+				if (!LeftToRight)
+				{
+					toRemove.push_back(numFile - 1);
+					continue;
+				}
 				break;
 			}
 			case EQUAL:			
 			{
-				if (!Equal) continue;
+				if (!Equal) 
+				{
+					toRemove.push_back(numFile - 1);
+					continue;
+				}
 				break;
 			}
 			case NOTEQUAL:		
 			{
-				if (!NotEqual) continue;
+				if (!NotEqual) 
+				{
+					toRemove.push_back(numFile - 1);
+					continue;
+				}
 				break;
 			}
 			case RIGHTtoLEFT:	
 			{
-				if (!RightToLeft) continue;
+				if (!RightToLeft) 
+				{
+					toRemove.push_back(numFile - 1);
+					continue;
+				}
 				break;
 			}
 			}
 
-			insertInList(ListFirstFolder, file.FirstFile, i, FirstDirectoryAddress);
-			insertInList(ListSecondFolder, file.SecondFile, i, SecondDirectoryAddress);
-			i++;
+			insertInList(ListFirstFolder, file.FirstFile, numList, FirstDirectoryAddress);
+			insertInList(ListSecondFolder, file.SecondFile, numList, SecondDirectoryAddress);
+			numList++;
 		}
+
+		for (int i = 0; i < toRemove.size(); i++)
+			Comparasions.erase(Comparasions.begin() + (toRemove[i] - i));
 	}
 	else
 	{

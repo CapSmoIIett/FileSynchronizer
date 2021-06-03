@@ -9,6 +9,10 @@
 #define FIRST_SCROLL  1
 #define SECOND_SCROLL 2
 
+#define GREEN	RGB(0, 128, 0)
+#define RED		RGB(205, 0, 0)
+#define BLUE	RGB(0, 0, 205)
+#define BLACK	RGB(0, 0, 0)
 
 // Главное диалоговое окно 
 class CApplicationDlg : public CDialogEx

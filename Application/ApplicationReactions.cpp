@@ -308,24 +308,28 @@ void CApplicationDlg::BeginScrollListSecond(NMHDR* pNMHDR, LRESULT* pResult)
 void CApplicationDlg::ChangeCheckBoxLeftToRight()
 {
 	LeftToRight = !LeftToRight;
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);
 }
 
 void CApplicationDlg::ChangeCheckBoxEqual()
 {
 	Equal = !Equal;
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);
 }
 
 void CApplicationDlg::ChangeCheckNotEqual()
 {
 	NotEqual = !NotEqual;
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);
 }
 
 void CApplicationDlg::ChangeCheckRightToLeft()
 {
 	RightToLeft = !RightToLeft;
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);
 }
 
@@ -347,9 +351,9 @@ void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 	case (CDDS_ITEMPREPAINT | CDDS_SUBITEM):
 	{
 		if (pLVCD->nmcd.dwItemSpec % 2 == 0)
-			pLVCD->clrTextBk = RGB(245, 245, 245);
+			pLVCD->clrTextBk = GREY;
 		else
-			pLVCD->clrTextBk = RGB(255, 255, 255);
+			pLVCD->clrTextBk = WHITE;
 
 		if (ReadyToSync)
 		{
@@ -360,7 +364,7 @@ void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 			{
 			case EQUAL:
 			{
-				pLVCD->clrText = RGB(0, 0, 0);
+				pLVCD->clrText = BLACK;
 				break;
 			}
 			case NOTEQUAL:
@@ -368,29 +372,29 @@ void CApplicationDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 				auto file = Comparasions[pLVCD->nmcd.dwItemSpec];
 				if (file.isDifContent())		// If files has different content color all columns
 				{
-					pLVCD->clrText = RGB(255, 0, 0);
+					pLVCD->clrText = RED;
 					return;
 				}
 				if (file.isDifType() &&  pLVCD->iSubItem == 1)
-					pLVCD->clrText = RGB(255, 0, 0);
+					pLVCD->clrText = RED;
 				else if (file.isDifSize() && pLVCD->iSubItem == 2)
-					pLVCD->clrText = RGB(255, 0, 0);
+					pLVCD->clrText = RED;
 				else if (file.isDifDate() && pLVCD->iSubItem == 3)
-					pLVCD->clrText = RGB(255, 0, 0);
+					pLVCD->clrText = RED;
 				else if (file.isDifAttr() && pLVCD->iSubItem == 4)
-					pLVCD->clrText = RGB(255, 0, 0);
+					pLVCD->clrText = RED;
 				else
-					pLVCD->clrText = RGB(0, 0, 0);
+					pLVCD->clrText = BLACK;
 				break;
 			}
 			case LEFTtoRIGHT:
 			{
-				pLVCD->clrText = RGB(0, 255, 0);
+				pLVCD->clrText = GREEN;
 				break;
 			}
 			case RIGHTtoLEFT:
 			{
-				pLVCD->clrText = RGB(0, 0, 255);
+				pLVCD->clrText = BLUE;
 				break;
 			}
 			}
@@ -430,22 +434,22 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 			{
 			case EQUAL:
 			{
-				pLVCD->clrText = RGB(0, 0, 0);
+				pLVCD->clrText = BLACK;
 				break;
 			}
 			case NOTEQUAL:
 			{
-				pLVCD->clrText = RGB(255, 0, 0);
+				pLVCD->clrText = RED;
 				break;
 			}
 			case LEFTtoRIGHT:
 			{
-				pLVCD->clrText = RGB(0, 255, 0);
+				pLVCD->clrText = GREEN;
 				break;
 			}
 			case RIGHTtoLEFT:
 			{
-				pLVCD->clrText = RGB(0, 0, 255);
+				pLVCD->clrText = BLUE;
 				break;
 			}
 			}
