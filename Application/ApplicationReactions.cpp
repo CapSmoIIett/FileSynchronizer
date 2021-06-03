@@ -458,6 +458,9 @@ void CApplicationDlg::OnNMCustomdrawListComparnResult(NMHDR* pNMHDR, LRESULT* pR
 
 void CApplicationDlg::OnActivate(UINT, CWnd*, BOOL)
 {
+	if (ReadyToSync)
+		Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+
 	UpdateAll(ReadyToSync);
 }
 
@@ -485,3 +488,26 @@ void CApplicationDlg::MenuRightToLeft()
 	UpdateAll(ReadyToSync);
 }
 
+void CApplicationDlg::ChangeCheckBoxWithFolders()
+{
+	WithFolders = !WithFolders;
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::ChangeCheckBoxWithContent()
+{
+	WithContent = !WithContent;
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::ChangeCheckBoxWithoutDate()
+{
+	WithoutDate = !WithoutDate;
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	UpdateAll(ReadyToSync);
+}

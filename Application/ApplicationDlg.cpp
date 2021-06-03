@@ -130,8 +130,8 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, FirstDirectoryAddress);
 	DDX_Text(pDX, IDC_EDIT2, SecondDirectoryAddress);
-	DDX_Control(pDX, IDC_LIST5, ListFirstFolder);
-	DDX_Control(pDX, IDC_LIST4, ListSecondFolder);
+	DDX_Control(pDX, LIST1, ListFirstFolder);
+	DDX_Control(pDX, LIST2, ListSecondFolder);
 	DDX_Check(pDX, IDC_CHECK1, WithFolders);
 	DDX_Check(pDX, IDC_CHECK2, WithContent);
 	DDX_Check(pDX, IDC_CHECK3, WithoutDate);
@@ -139,9 +139,9 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK5, Equal);
 	DDX_Check(pDX, IDC_CHECK6, NotEqual);
 	DDX_Check(pDX, IDC_CHECK7, RightToLeft);
-	DDX_Control(pDX, IDC_BUTTON4, SynchronizeLeftToRightButton);
-	DDX_Control(pDX, IDC_BUTTON5, SynchronizeRightToLeftButton);
-	DDX_Control(pDX, IDC_LIST6, ListComparisonResults);
+	DDX_Control(pDX, BUTTON_LR, SynchronizeLeftToRightButton);
+	DDX_Control(pDX, BUTTON_RL, SynchronizeRightToLeftButton);
+	DDX_Control(pDX, LIST3, ListComparisonResults);
 	
 }
 
@@ -154,31 +154,35 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	
 	ON_BN_CLICKED(IDC_BUTTON1, &CApplicationDlg::ClickedButtonFirstView)
 	ON_BN_CLICKED(IDC_BUTTON2, &CApplicationDlg::ClickedButtonSecondView)	
-	ON_BN_CLICKED(IDC_BUTTON3, &CApplicationDlg::CompareFolders)
+	ON_BN_CLICKED(SYNC_BUTTON, &CApplicationDlg::CompareFolders)
 
-	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST5, &CApplicationDlg::SelectElementFirstTable)
-	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST4, &CApplicationDlg::SelectElementSecondTable)
-	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST6, &CApplicationDlg::SelectElementCompaComparisonTable)
+	ON_NOTIFY(LVN_ITEMACTIVATE, LIST1, &CApplicationDlg::SelectElementFirstTable)
+	ON_NOTIFY(LVN_ITEMACTIVATE, LIST2, &CApplicationDlg::SelectElementSecondTable)
+	ON_NOTIFY(LVN_ITEMACTIVATE, LIST3, &CApplicationDlg::SelectElementCompaComparisonTable)
+	
+	ON_BN_CLICKED(BUTTON_LR, &CApplicationDlg::SynchronizeLeftToRight)
+	ON_BN_CLICKED(BUTTON_RL, &CApplicationDlg::SynchronizeRightToLeft)
 
-	ON_BN_CLICKED(IDC_BUTTON4, &CApplicationDlg::SynchronizeLeftToRight)
-	ON_BN_CLICKED(IDC_BUTTON5, &CApplicationDlg::SynchronizeRightToLeft)
-
-	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST5, &CApplicationDlg::BeginScrollListFirst)
-	ON_NOTIFY(LVN_BEGINSCROLL, IDC_LIST4, &CApplicationDlg::BeginScrollListSecond)
+	ON_NOTIFY(LVN_BEGINSCROLL, LIST1, &CApplicationDlg::BeginScrollListFirst)
+	ON_NOTIFY(LVN_BEGINSCROLL, LIST2, &CApplicationDlg::BeginScrollListSecond)
 	
 	ON_BN_CLICKED(IDC_CHECK4, &CApplicationDlg::ChangeCheckBoxLeftToRight)
 	ON_BN_CLICKED(IDC_CHECK5, &CApplicationDlg::ChangeCheckBoxEqual)
 	ON_BN_CLICKED(IDC_CHECK6, &CApplicationDlg::ChangeCheckNotEqual)
 	ON_BN_CLICKED(IDC_CHECK7, &CApplicationDlg::ChangeCheckRightToLeft)
 
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST4, &CApplicationDlg::OnNMCustomdraw)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST5, &CApplicationDlg::OnNMCustomdraw)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST6, &CApplicationDlg::OnNMCustomdrawListComparnResult) 
+	ON_NOTIFY(NM_CUSTOMDRAW, LIST2, &CApplicationDlg::OnNMCustomdraw)
+	ON_NOTIFY(NM_CUSTOMDRAW, LIST1, &CApplicationDlg::OnNMCustomdraw)
+	ON_NOTIFY(NM_CUSTOMDRAW, LIST3, &CApplicationDlg::OnNMCustomdrawListComparnResult) 
 
 	ON_WM_ACTIVATE(&CApplicationDlg::OnActivate)
 
 	ON_COMMAND(ID_32771, &CApplicationDlg::MenuLeftToRight)
 	ON_COMMAND(ID_32772, &CApplicationDlg::MenuRightToLeft)
+
+	ON_BN_CLICKED(IDC_CHECK1, &CApplicationDlg::ChangeCheckBoxWithFolders)
+	ON_BN_CLICKED(IDC_CHECK2, &CApplicationDlg::ChangeCheckBoxWithContent)
+	ON_BN_CLICKED(IDC_CHECK3, &CApplicationDlg::ChangeCheckBoxWithoutDate)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -208,8 +212,8 @@ BOOL CApplicationDlg::OnInitDialog()
 	PopupMenu.LoadMenu(IDR_MENU1);
 	ASSERT(PopupMenu != NULL);
 
-	SynchronizeLeftToRightButton.SetTextColor(RGB(0, 0, 255));
-	SynchronizeRightToLeftButton.SetTextColor(RGB(0, 255, 0));
+	SynchronizeLeftToRightButton.SetTextColor(RGB(0, 255, 0));
+	SynchronizeRightToLeftButton.SetTextColor(RGB(0, 0, 255));
 	// Блокировка кнопок синхронизации
 	SynchronizeLeftToRightButton.EnableWindow(FALSE);
 	SynchronizeRightToLeftButton.EnableWindow(FALSE);

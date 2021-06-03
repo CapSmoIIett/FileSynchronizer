@@ -14,7 +14,10 @@
 #define IDC_BUTTON1                     1002
 #define IDC_BUTTON2                     1003
 #define IDC_BUTTON5                     1004
+#define BUTTON_LR                       1004
 #define IDC_BUTTON6                     1005
+#define BUTTON6                         1005
+#define BUTTON_RL                       1005
 #define IDC_BUTTON3                     1006
 #define IDC_CHECK1                      1007
 #define IDC_CHECK2                      1008
@@ -23,12 +26,15 @@
 #define IDC_COMBO1                      1011
 #define IDC_CHECK5                      1011
 #define IDC_LIST4                       1012
+#define LIST2                           1012
 #define IDC_LIST5                       1013
 #define IDC_LIST1                       1013
+#define LIST1                           1013
 #define IDC_CHECK6                      1016
 #define IDC_LIST2                       1017
 #define IDC_CHECK7                      1017
 #define IDC_LIST6                       1018
+#define LIST3                           1018
 #define IDC_BUTTON4                     1020
 #define SYNC_BUTTON                     1020
 #define ID_32771                        32771

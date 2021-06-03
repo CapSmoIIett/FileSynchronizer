@@ -229,11 +229,11 @@ void CHexEditorDlg::OnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 			if (numberOfSymbol < _ttoi(CurrentFile.size))
 			{
 				symbol = pointer[numberOfSymbol];
-				text = IntToHex(symbol);
+				text = IntToHex(symbol, 1);
 			}
 			else
 			{
-				text = L" ";
+				text = L"0";
 			}
 		}
 
@@ -271,19 +271,19 @@ void CHexEditorDlg::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
 		if (pLVCD->iSubItem >= 0 &&
 			pLVCD->iSubItem < COL_RULER)
 		{
-			pLVCD->clrTextBk = RGB(245, 245, 245);
+			pLVCD->clrTextBk = GREY;
 			break;
 		}
 		if (pLVCD->iSubItem >= COL_RULER &&
 			pLVCD->iSubItem < COL_RULER + COL_ASCII)
 		{
-			pLVCD->clrTextBk = RGB(255, 255, 255);
+			pLVCD->clrTextBk = WHITE;
 			break;
 		}
 		if (pLVCD->iSubItem >= COL_RULER + COL_ASCII &&
 			pLVCD->iSubItem < COL_RULER + COL_ASCII + COL_HEX)
 		{
-			pLVCD->clrTextBk = RGB(245, 245, 245);
+			pLVCD->clrTextBk = GREY;
 			break;
 		}
 

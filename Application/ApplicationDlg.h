@@ -55,6 +55,9 @@ class CApplicationDlg : public CDialogEx
 		afx_msg void ChangeCheckBoxEqual();
 		afx_msg void ChangeCheckNotEqual();
 		afx_msg void ChangeCheckRightToLeft();
+		afx_msg void ChangeCheckBoxWithFolders();
+		afx_msg void ChangeCheckBoxWithContent();
+		afx_msg void ChangeCheckBoxWithoutDate();
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);

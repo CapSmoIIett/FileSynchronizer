@@ -2,6 +2,11 @@
 
 #include "ApplicationDlg.h"
 
+
+#define WHITE RGB(255, 255, 255)
+#define GREY  RGB(245, 245, 245)
+
+
 // Диалоговое окно CHexEditorDlg
 
 class CHexEditorDlg : public CDialogEx
