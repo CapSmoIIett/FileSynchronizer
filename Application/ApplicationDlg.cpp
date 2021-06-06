@@ -44,6 +44,7 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent)
 	, Equal(TRUE)
 	, NotEqual(TRUE)
 	, RightToLeft(TRUE)
+	, WithoutAttribute(FALSE)
 {
 	CFile file;
 	int startOfSecondPath = 0;
@@ -146,7 +147,8 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, BUTTON_LR, SynchronizeLeftToRightButton);
 	DDX_Control(pDX, BUTTON_RL, SynchronizeRightToLeftButton);
 	DDX_Control(pDX, LIST3, ListComparisonResults);
-	
+
+	DDX_Check(pDX, IDC_CHECK8, WithoutAttribute);
 }
 
 BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
@@ -162,7 +164,7 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 
 	ON_NOTIFY(LVN_ITEMACTIVATE, LIST1, &CApplicationDlg::SelectElementFirstTable)
 	ON_NOTIFY(LVN_ITEMACTIVATE, LIST2, &CApplicationDlg::SelectElementSecondTable)
-	ON_NOTIFY(LVN_ITEMACTIVATE, LIST3, &CApplicationDlg::SelectElementCompaComparisonTable)
+	ON_NOTIFY(LVN_ITEMACTIVATE, LIST3, &CApplicationDlg::SelectElementComparisonTable)
 	
 	ON_BN_CLICKED(BUTTON_LR, &CApplicationDlg::SynchronizeLeftToRight)
 	ON_BN_CLICKED(BUTTON_RL, &CApplicationDlg::SynchronizeRightToLeft)
@@ -187,6 +189,7 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK1, &CApplicationDlg::ChangeCheckBoxWithFolders)
 	ON_BN_CLICKED(IDC_CHECK2, &CApplicationDlg::ChangeCheckBoxWithContent)
 	ON_BN_CLICKED(IDC_CHECK3, &CApplicationDlg::ChangeCheckBoxWithoutDate)
+	ON_BN_CLICKED(IDC_CHECK8, &CApplicationDlg::ChangeCheckBoxWithoutAttribute)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -472,4 +475,3 @@ int  CApplicationDlg::GetItemHeight(CListCtrl& list)
 	list.GetSubItemRect(1, 1, LVIR_BOUNDS, ItemRect);
 	return ItemRect.bottom - ItemRect.top;
 }
-

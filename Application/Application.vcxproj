@@ -186,6 +186,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="ApplicationDlg.h" />
     <ClInclude Include="ComparisonResult.h" />
+    <ClInclude Include="ErrorDlg.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="HexEditorDlg.h" />
@@ -201,6 +202,7 @@
     <ClCompile Include="ApplicationComparisons.cpp" />
     <ClCompile Include="ApplicationDlg.cpp" />
     <ClCompile Include="ApplicationReactions.cpp" />
+    <ClCompile Include="ErrorDlg.cpp" />
     <ClCompile Include="HexEditorDlg.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -217,10 +219,12 @@
     <None Include="res\Application.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="C:\Users\matve\Downloads\m_Error.png" />
     <Image Include="res\App.ico" />
     <Image Include="res\Application.ico" />
     <Image Include="res\Application.png" />
     <Image Include="res\icon1.ico" />
+    <Image Include="res\m_Error.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

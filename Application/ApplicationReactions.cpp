@@ -6,6 +6,7 @@
 #include "afxdialogex.h"
 #include "WFDTranslator.h"
 #include "HexEditorDlg.h"
+#include "ErrorDlg.h"
 
 
 // ѕри добавлении кнопки свертывани€ в диалоговое окно нужно воспользоватьс€ приведенным ниже кодом,
@@ -112,6 +113,22 @@ void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
 			editor.DoModal();
 		}
 	}
+	else
+	{
+		WFDFile file = Comparasions[pNMIA->iItem].FirstFile;
+
+		if (file.size == L"0")
+		{
+			FirstDirectoryAddress += L"\\" + file.name;
+			UpdateAll();
+			UpdateData(false);
+		}
+		else
+		{
+			CHexEditorDlg editor(file, this);
+			editor.DoModal();
+		}
+	}
 
 	*pResult = 0;
 }
@@ -136,11 +153,27 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 			editor.DoModal();
 		}
 	}
+	else
+	{
+		WFDFile file = Comparasions[pNMIA->iItem].SecondFile;
+
+		if (file.size == L"0")
+		{
+			SecondDirectoryAddress += L"\\" + file.name;
+			UpdateAll();
+			UpdateData(false);
+		}
+		else
+		{
+			CHexEditorDlg editor(file, this);
+			editor.DoModal();
+		}
+	}
 
 	*pResult = 0;
 }
 
-void CApplicationDlg::SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* pResult)
+void CApplicationDlg::SelectElementComparisonTable(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
@@ -185,7 +218,51 @@ void CApplicationDlg::SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* 
 
 void CApplicationDlg::CompareFolders()
 {
-	UpdateData(true);
+	UpdateData(false);
+
+	// Remove Spaces from end
+	int number = 0;
+	bool flag = 0;
+	do
+	{
+		flag = 0;
+		number = SecondDirectoryAddress.ReverseFind(' ');
+		if (number == SecondDirectoryAddress.GetLength() - 1)
+		{
+			SecondDirectoryAddress.Delete(SecondDirectoryAddress.GetLength() - 1);
+			flag = 1;
+		}
+
+	} while (flag);
+
+	number = 0;
+	flag = 0;
+	do
+	{
+		flag = 0;
+		number = FirstDirectoryAddress.ReverseFind(' ');
+		if (number == FirstDirectoryAddress.GetLength() - 1)
+		{
+			FirstDirectoryAddress.Delete(FirstDirectoryAddress.GetLength() - 1);
+			flag = 1;
+		}
+
+	} while (flag);
+
+	if (FirstDirectoryAddress == SecondDirectoryAddress)
+	{
+		ErrorDlg error(L"¬ыбраны одинаковые директории!");
+		error.DoModal();
+		return;
+	}
+
+	DWORD fileAttrFirst = GetFileAttributes(FirstDirectoryAddress);
+	if (fileAttrFirst == 0xFFFFFFFF)
+		return;
+
+	DWORD fileAttrSecond = GetFileAttributes(SecondDirectoryAddress);
+	if (fileAttrSecond == 0xFFFFFFFF)
+		return;
 
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 
@@ -504,6 +581,14 @@ void CApplicationDlg::ChangeCheckBoxWithContent()
 void CApplicationDlg::ChangeCheckBoxWithoutDate()
 {
 	WithoutDate = !WithoutDate;
+
+	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
+	UpdateAll(ReadyToSync);
+}
+
+void CApplicationDlg::ChangeCheckBoxWithoutAttribute()
+{
+	WithoutAttribute = !WithoutAttribute;
 
 	Comparasions = CompareAll(FilesFirstList, FilesSecondList);
 	UpdateAll(ReadyToSync);

@@ -143,11 +143,12 @@ ComparisonResult CApplicationDlg::Compare(WFDFile first, WFDFile second)
 		answer.ratio = NOTEQUAL;
 		answer.difference |= SIZE;
 	}
-	if (first.attr != second.attr)
-	{
-		answer.ratio = NOTEQUAL;
-		answer.difference |= ATTR;
-	}
+	if (!WithoutAttribute)
+		if (first.attr != second.attr)
+		{
+			answer.ratio = NOTEQUAL;
+			answer.difference |= ATTR;
+		}
 
 	if (WithContent)
 	{
@@ -308,7 +309,13 @@ void CApplicationDlg::syncLeftToRight(WFDFile first, WFDFile second)
 	}
 	else
 	{
-		secondFileName = second.fullName;
+		secondFileName = second.fullName;		
+	}
+	
+	// Если read only атрибут
+	if (second.attr[0] == L'r')
+	{
+		SetFileAttributes(secondFileName, FILE_ATTRIBUTE_NORMAL);
 	}
 
 	CopyFile(first.fullName, secondFileName, FailIfExists);
@@ -357,6 +364,12 @@ void CApplicationDlg::syncRightToLeft(WFDFile first, WFDFile second)
 	else
 	{
 		firstFileName = first.fullName;
+	}
+
+	// Если read only атрибут
+	if (first.attr[0] == L'r')
+	{
+		SetFileAttributes(firstFileName, FILE_ATTRIBUTE_NORMAL);
 	}
 	
 	CopyFile(second.fullName, firstFileName, FailIfExists);

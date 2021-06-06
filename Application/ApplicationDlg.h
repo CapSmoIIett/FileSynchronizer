@@ -62,10 +62,11 @@ class CApplicationDlg : public CDialogEx
 		afx_msg void ChangeCheckBoxWithFolders();
 		afx_msg void ChangeCheckBoxWithContent();
 		afx_msg void ChangeCheckBoxWithoutDate();
+		afx_msg void ChangeCheckBoxWithoutAttribute();
 
 		afx_msg void SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult);
 		afx_msg void SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult);
-		afx_msg void SelectElementCompaComparisonTable(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void SelectElementComparisonTable(NMHDR* pNMHDR, LRESULT* pResult);
 
 		afx_msg void CompareFolders();
 
@@ -124,6 +125,7 @@ class CApplicationDlg : public CDialogEx
 		BOOL WithFolders;
 		BOOL WithContent;
 		BOOL WithoutDate;
+		BOOL WithoutAttribute;
 
 		BOOL LeftToRight;
 		BOOL Equal;
