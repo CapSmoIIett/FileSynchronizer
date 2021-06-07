@@ -7,6 +7,7 @@
 #include "WFDTranslator.h"
 #include "HexEditorDlg.h"
 #include "resource.h"
+#include "ErrorDlg.h"
 
 #include <fstream>
 #include <locale>
@@ -97,6 +98,8 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent)
 	}
 	catch (...)
 	{
+		ErrorDlg error(L"Ошибка в чтении файла!");
+		error.DoModal();
 		FirstDirectoryAddress = L"";
 		SecondDirectoryAddress = L"";
 	}
@@ -126,6 +129,8 @@ CApplicationDlg::~CApplicationDlg()
 	}
 	catch (...)
 	{ 
+		ErrorDlg error(L"Ошибка с записью в файл!");
+		error.DoModal();
 		return;
 	}
 }

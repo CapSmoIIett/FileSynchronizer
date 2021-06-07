@@ -119,7 +119,7 @@ void CApplicationDlg::SelectElementFirstTable(NMHDR* pNMHDR, LRESULT* pResult)
 
 		if (file.size == L"0")
 		{
-			FirstDirectoryAddress += L"\\" + file.name;
+			FirstDirectoryAddress = file.fullName;
 			UpdateAll();
 			UpdateData(false);
 		}
@@ -159,7 +159,7 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 
 		if (file.size == L"0")
 		{
-			SecondDirectoryAddress += L"\\" + file.name;
+			SecondDirectoryAddress = file.fullName;
 			UpdateAll();
 			UpdateData(false);
 		}
