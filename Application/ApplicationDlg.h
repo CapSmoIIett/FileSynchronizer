@@ -4,6 +4,7 @@
 #include "WFDFile.h"
 #include "WFDFile.h"
 #include "ComparisonResult.h"
+//#include "GoogleDriveModule.h"
 
 #define NOBODY_SCROLL 0
 #define FIRST_SCROLL  1
@@ -92,6 +93,10 @@ class CApplicationDlg : public CDialogEx
 
 		int GetItemHeight(CListCtrl&);
 
+		afx_msg void SyncronizeGD();
+
+protected:
+
 		// For PopupMenu
 		int numberSelectedItem;
 
@@ -136,7 +141,9 @@ class CApplicationDlg : public CDialogEx
 
 		CMFCButton SynchronizeLeftToRightButton;
 		CMFCButton SynchronizeRightToLeftButton;
-
+		CMFCButton GoogleDriveButton;
+		CToolBar m_wndToolBar;
+		
 		std::vector<WFDFile> FilesFirstList;
 		std::vector<WFDFile> FilesSecondList;
 

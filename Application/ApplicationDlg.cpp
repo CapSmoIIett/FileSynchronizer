@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "framework.h"
+#include "GoogleDriveModule.h"
 #include "Application.h"
 #include "ApplicationDlg.h"
 #include "AboutDlg.h"
@@ -151,6 +151,7 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK7, RightToLeft);
 	DDX_Control(pDX, BUTTON_LR, SynchronizeLeftToRightButton);
 	DDX_Control(pDX, BUTTON_RL, SynchronizeRightToLeftButton);
+	DDX_Control(pDX, IDC_GD_BUTTON, GoogleDriveButton);
 	DDX_Control(pDX, LIST3, ListComparisonResults);
 
 	DDX_Check(pDX, IDC_CHECK8, WithoutAttribute);
@@ -195,6 +196,7 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK2, &CApplicationDlg::ChangeCheckBoxWithContent)
 	ON_BN_CLICKED(IDC_CHECK3, &CApplicationDlg::ChangeCheckBoxWithoutDate)
 	ON_BN_CLICKED(IDC_CHECK8, &CApplicationDlg::ChangeCheckBoxWithoutAttribute)
+	ON_BN_CLICKED(IDC_GD_BUTTON, &CApplicationDlg::SyncronizeGD)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -219,7 +221,6 @@ BOOL CApplicationDlg::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
-	
 
 	PopupMenu.LoadMenu(IDR_MENU1);
 	ASSERT(PopupMenu != NULL);
@@ -479,4 +480,9 @@ int  CApplicationDlg::GetItemHeight(CListCtrl& list)
 	CRect ItemRect;
 	list.GetSubItemRect(1, 1, LVIR_BOUNDS, ItemRect);
 	return ItemRect.bottom - ItemRect.top;
+}
+
+void CApplicationDlg::SyncronizeGD()
+{
+	GoogleDriveModule::LogIn();
 }

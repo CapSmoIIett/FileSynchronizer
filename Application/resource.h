@@ -43,6 +43,7 @@
 #define SYNC_BUTTON                     1020
 #define IDC_TEXT                        1027
 #define IDC_PICTURE                     1028
+#define IDC_GD_BUTTON                   1029
 #define ID_32771                        32771
 #define ID_32772                        32776
 
