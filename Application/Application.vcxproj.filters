@@ -51,6 +51,9 @@
     <ClInclude Include="ErrorDlg.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="GoogleDriveModule.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -80,6 +83,9 @@
     <ClCompile Include="ErrorDlg.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="GoogleDriveModule.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Application.rc">
@@ -90,6 +96,7 @@
     <None Include="res\Application.rc2">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\Application.ico">
@@ -108,6 +115,9 @@
       <Filter>Файлы ресурсов</Filter>
     </Image>
     <Image Include="res\m_Error.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="res\toolbar1.bmp">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>
