@@ -94,6 +94,7 @@ class CApplicationDlg : public CDialogEx
 		int GetItemHeight(CListCtrl&);
 
 		afx_msg void SyncronizeGD();
+		afx_msg void GetAuthorizationCode();
 
 protected:
 
@@ -119,7 +120,7 @@ protected:
 		// Адрес директории
 		CString FirstDirectoryAddress;			
 		CString SecondDirectoryAddress;
-
+		CString GDCode;
 
 		CListCtrl ListFirstFolder;				
 		CListCtrl ListSecondFolder;
@@ -142,6 +143,7 @@ protected:
 		CMFCButton SynchronizeLeftToRightButton;
 		CMFCButton SynchronizeRightToLeftButton;
 		CMFCButton GoogleDriveButton;
+		CMFCButton OKGoogleDriveButton;
 		CToolBar m_wndToolBar;
 		
 		std::vector<WFDFile> FilesFirstList;

@@ -256,6 +256,7 @@
     <Import Project="..\packages\openssl-vc140-static-32_64.1.1.1.1\build\native\openssl-vc140-static-32_64.targets" Condition="Exists('..\packages\openssl-vc140-static-32_64.1.1.1.1\build\native\openssl-vc140-static-32_64.targets')" />
     <Import Project="..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets" Condition="Exists('..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets')" />
     <Import Project="..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets" Condition="Exists('..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets')" />
+    <Import Project="..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets" Condition="Exists('..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -267,5 +268,6 @@
     <Error Condition="!Exists('..\packages\openssl-vc140-static-32_64.1.1.1.1\build\native\openssl-vc140-static-32_64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl-vc140-static-32_64.1.1.1.1\build\native\openssl-vc140-static-32_64.targets'))" />
     <Error Condition="!Exists('..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets'))" />
     <Error Condition="!Exists('..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets'))" />
   </Target>
 </Project>

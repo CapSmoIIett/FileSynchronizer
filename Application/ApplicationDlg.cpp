@@ -140,6 +140,7 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, FirstDirectoryAddress);
 	DDX_Text(pDX, IDC_EDIT2, SecondDirectoryAddress);
+	DDX_Text(pDX, IDC_GD_EDIT, GDCode);
 	DDX_Control(pDX, LIST1, ListFirstFolder);
 	DDX_Control(pDX, LIST2, ListSecondFolder);
 	DDX_Check(pDX, IDC_CHECK1, WithFolders);
@@ -152,6 +153,7 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, BUTTON_LR, SynchronizeLeftToRightButton);
 	DDX_Control(pDX, BUTTON_RL, SynchronizeRightToLeftButton);
 	DDX_Control(pDX, IDC_GD_BUTTON, GoogleDriveButton);
+	DDX_Control(pDX, IDC_GD_OK_BUTTON, OKGoogleDriveButton);
 	DDX_Control(pDX, LIST3, ListComparisonResults);
 
 	DDX_Check(pDX, IDC_CHECK8, WithoutAttribute);
@@ -197,6 +199,7 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK3, &CApplicationDlg::ChangeCheckBoxWithoutDate)
 	ON_BN_CLICKED(IDC_CHECK8, &CApplicationDlg::ChangeCheckBoxWithoutAttribute)
 	ON_BN_CLICKED(IDC_GD_BUTTON, &CApplicationDlg::SyncronizeGD)
+	ON_BN_CLICKED(IDC_GD_OK_BUTTON, &CApplicationDlg::GetAuthorizationCode)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -485,4 +488,12 @@ int  CApplicationDlg::GetItemHeight(CListCtrl& list)
 void CApplicationDlg::SyncronizeGD()
 {
 	GoogleDriveModule::LogIn();
+}
+
+void CApplicationDlg::GetAuthorizationCode()
+{
+	UpdateData();
+	CT2CA pszConvertedAnsiString(GDCode);
+	std::string str(pszConvertedAnsiString);
+	GoogleDriveModule::GetAccessToken(str);
 }

@@ -4,15 +4,23 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast.hpp>
 
-	namespace http = boost::beast::http;
+//#include <boost/asio/ssl>
+
+//#include <boost/python.hpp>
+
+using tcp = boost::asio::ip::tcp;   
+namespace ssl = boost::asio::ssl;      
+namespace http = boost::beast::http;
+
 
 class GoogleDriveModule
 {
 public:
 	GoogleDriveModule();
 	static void LogIn();
-	void GetAccessToken();
+	static void GetAccessToken(std::string code);
 	
-	//CURL *m_curl;
-	//CURLcode res;
+	static  std::string Get(std::string host, std::string target);
+	static  std::string Post(std::string host, std::string target);
 };
+
