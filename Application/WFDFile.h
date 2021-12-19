@@ -30,4 +30,37 @@ struct WFDFile {
 		int number = fullName.Find(temp);
 		return fullName.Left(number);
 	}
+	
+	CString GetOneString() {
+		return fullName + "&" + name + "&" + type + "&" +
+			size + "&" + date + "&" + attr + "\0";
+	}
+
+	void GetFromWString(CString str)
+	{
+		int number = str.Find(L"&");
+		fullName = str.Left(number);
+		str = str.Right(number);
+
+		number = str.Find(L"&");
+		name = str.Left(number);
+		str = str.Right(number);
+
+		number = str.Find(L"&");
+		type = str.Left(number);
+		str = str.Right(number);
+
+		number = str.Find(L"&");
+		size = str.Left(number);
+		str = str.Right(number);
+
+		number = str.Find(L"&");
+		date = str.Left(number);
+		str = str.Right(number);
+
+		number = str.Find(L"&");
+		attr = str.Left(number);
+		str = str.Right(number);
+	}
+
 };

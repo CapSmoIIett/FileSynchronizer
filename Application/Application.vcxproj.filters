@@ -54,6 +54,9 @@
     <ClInclude Include="GoogleDriveModule.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="TCPConnection.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -84,6 +87,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="GoogleDriveModule.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPConnection.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

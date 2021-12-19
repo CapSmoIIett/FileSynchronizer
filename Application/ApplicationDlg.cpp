@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "GoogleDriveModule.h"
+#include "TCPConnection.h"
 #include "Application.h"
 #include "ApplicationDlg.h"
 #include "AboutDlg.h"
@@ -46,6 +47,7 @@ CApplicationDlg::CApplicationDlg(CWnd* pParent)
 	, NotEqual(TRUE)
 	, RightToLeft(TRUE)
 	, WithoutAttribute(FALSE)
+	, Connection(FALSE)
 {
 	CFile file;
 	int startOfSecondPath = 0;
@@ -141,6 +143,7 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT1, FirstDirectoryAddress);
 	DDX_Text(pDX, IDC_EDIT2, SecondDirectoryAddress);
 	DDX_Text(pDX, IDC_GD_EDIT, GDCode);
+	DDX_Control(pDX, IDC_TEXT_IP, TextIP);
 	DDX_Control(pDX, LIST1, ListFirstFolder);
 	DDX_Control(pDX, LIST2, ListSecondFolder);
 	DDX_Check(pDX, IDC_CHECK1, WithFolders);
@@ -156,7 +159,7 @@ void CApplicationDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GD_OK_BUTTON, OKGoogleDriveButton);
 	DDX_Control(pDX, LIST3, ListComparisonResults);
 
-	DDX_Check(pDX, IDC_CHECK8, WithoutAttribute);
+	DDX_Check(pDX, IDC_CHECK8, WithoutAttribute);	
 }
 
 BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
@@ -200,6 +203,8 @@ BEGIN_MESSAGE_MAP(CApplicationDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK8, &CApplicationDlg::ChangeCheckBoxWithoutAttribute)
 	ON_BN_CLICKED(IDC_GD_BUTTON, &CApplicationDlg::SyncronizeGD)
 	ON_BN_CLICKED(IDC_GD_OK_BUTTON, &CApplicationDlg::GetAuthorizationCode)
+	ON_BN_CLICKED(OPEN_CONNECTION_BUTTON, &CApplicationDlg::OnOpenConnectionButton)
+	ON_BN_CLICKED(CONNECTION_BUTTON, &CApplicationDlg::OnConnectionButton)
 END_MESSAGE_MAP()
 
 BOOL CApplicationDlg::OnInitDialog()
@@ -260,6 +265,7 @@ BOOL CApplicationDlg::OnInitDialog()
 	ListSecondFolder.InsertColumn(2, L"Размер",  LVCFMT_LEFT, SIZE_COL_SIZE);
 	ListSecondFolder.InsertColumn(3, L"Дата",	 LVCFMT_LEFT, SIZE_COL_DATE);
 	ListSecondFolder.InsertColumn(4, L"Атрибуты",LVCFMT_LEFT, SIZE_COL_ATTR);
+	
 
 	UpdateAll();
 
@@ -466,12 +472,13 @@ void CApplicationDlg::UpdateAll(BOOL ready)
 
 		if (!FirstDirectoryAddress.IsEmpty())
 			UpdateList(ListFirstFolder, FirstDirectoryAddress, FilesFirstList);
-		if (!SecondDirectoryAddress.IsEmpty())
+		if (!SecondDirectoryAddress.IsEmpty() && !Connection)
 			UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
 	}
 
 	for (int i = 0; i < ListFirstFolder.GetHeaderCtrl()->GetItemCount(); ++i)
 		ListFirstFolder.SetColumnWidth(i, LVSCW_AUTOSIZE_USEHEADER);
+	
 	for (int i = 0; i < ListSecondFolder.GetHeaderCtrl()->GetItemCount(); ++i)
 		ListSecondFolder.SetColumnWidth(i, LVSCW_AUTOSIZE_USEHEADER);
 
@@ -496,4 +503,21 @@ void CApplicationDlg::GetAuthorizationCode()
 	CT2CA pszConvertedAnsiString(GDCode);
 	std::string str(pszConvertedAnsiString);
 	GoogleDriveModule::GetAccessToken(str);
+}
+
+
+void CApplicationDlg::OnOpenConnectionButton()
+{
+	Connection = TRUE;
+	CT2CA pszConvertedAnsiString(FirstDirectoryAddress);
+	TCPConnection::SendStr(std::string(pszConvertedAnsiString));
+}
+
+
+void CApplicationDlg::OnConnectionButton()
+{
+	Connection = TRUE;
+	SecondDirectoryAddress = CString(TCPConnection::GetStr().c_str());
+	FilesSecondList.clear();// = TCPConnection::GetAllFiles();
+	UpdateAll();
 }

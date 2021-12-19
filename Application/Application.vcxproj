@@ -128,7 +128,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;advapi32.lib;$(SolutionDir)\curl\x32 Debug\lib\libcurl_a_debug.lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -213,6 +214,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TCPConnection.h" />
     <ClInclude Include="WFDFile.h" />
     <ClInclude Include="WFDTranslator.h" />
   </ItemGroup>
@@ -231,6 +233,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TCPConnection.cpp" />
     <ClCompile Include="WFDTranslator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +260,11 @@
     <Import Project="..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets" Condition="Exists('..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets')" />
     <Import Project="..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets" Condition="Exists('..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets')" />
     <Import Project="..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets" Condition="Exists('..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets')" />
+    <Import Project="..\packages\boost_date_time-vc140.1.77.0.0\build\boost_date_time-vc140.targets" Condition="Exists('..\packages\boost_date_time-vc140.1.77.0.0\build\boost_date_time-vc140.targets')" />
+    <Import Project="..\packages\boost_thread-vc140.1.77.0.0\build\boost_thread-vc140.targets" Condition="Exists('..\packages\boost_thread-vc140.1.77.0.0\build\boost_thread-vc140.targets')" />
+    <Import Project="..\packages\boost_regex-vc140.1.77.0.0\build\boost_regex-vc140.targets" Condition="Exists('..\packages\boost_regex-vc140.1.77.0.0\build\boost_regex-vc140.targets')" />
+    <Import Project="..\packages\boost_chrono-vc140.1.77.0.0\build\boost_chrono-vc140.targets" Condition="Exists('..\packages\boost_chrono-vc140.1.77.0.0\build\boost_chrono-vc140.targets')" />
+    <Import Project="..\packages\boost_log-vc140.1.77.0.0\build\boost_log-vc140.targets" Condition="Exists('..\packages\boost_log-vc140.1.77.0.0\build\boost_log-vc140.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -269,5 +277,10 @@
     <Error Condition="!Exists('..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_filesystem-vc140.1.77.0.0\build\boost_filesystem-vc140.targets'))" />
     <Error Condition="!Exists('..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_system-vc140.1.77.0.0\build\boost_system-vc140.targets'))" />
     <Error Condition="!Exists('..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_python39-vc140.1.77.0.0\build\boost_python39-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_date_time-vc140.1.77.0.0\build\boost_date_time-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_date_time-vc140.1.77.0.0\build\boost_date_time-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_thread-vc140.1.77.0.0\build\boost_thread-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc140.1.77.0.0\build\boost_thread-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_regex-vc140.1.77.0.0\build\boost_regex-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_regex-vc140.1.77.0.0\build\boost_regex-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_chrono-vc140.1.77.0.0\build\boost_chrono-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_chrono-vc140.1.77.0.0\build\boost_chrono-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_log-vc140.1.77.0.0\build\boost_log-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_log-vc140.1.77.0.0\build\boost_log-vc140.targets'))" />
   </Target>
 </Project>

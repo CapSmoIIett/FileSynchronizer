@@ -15,7 +15,11 @@ GoogleDriveModule::GoogleDriveModule()
 void GoogleDriveModule::LogIn()
 {
 	ShellExecute(NULL, L"open",
-		L"https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/drive&redirect_uri=https://developers.google.com/oauthplayground&response_type=code&client_id=436850445452-vgn3r1ac6i6o4i68amnsd9qhjk9gam9d.apps.googleusercontent.com",
+		L"https://accounts.google.com/o/oauth2/auth"
+        L"?scope=https://www.googleapis.com/auth/drive"
+        L"&redirect_uri=https://developers.google.com/oauthplayground"
+        L"&response_type=code"
+        L"&client_id=436850445452-vgn3r1ac6i6o4i68amnsd9qhjk9gam9d.apps.googleusercontent.com",
 		NULL, NULL, SW_SHOW);//*/
     //auto s = Get("ip-api.com", "/json/");
     //auto s = Get("https://accounts.google.com/o/oauth2/auth", "?scope=https://www.googleapis.com/auth/drive&redirect_uri=https://developers.google.com/oauthplayground&response_type=code&client_id=436850445452-vgn3r1ac6i6o4i68amnsd9qhjk9gam9d.apps.googleusercontent.com");
@@ -24,9 +28,12 @@ void GoogleDriveModule::LogIn()
 
 void GoogleDriveModule::GetAccessToken(std::string code)
 {
-    const std::string str = "?code=%s&client_id=436850445452-vgn3r1ac6i6o4i68amnsd9qhjk9gam9d.apps.googleusercontent.com&client_secret=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&redirect_uri=https://developers.google.com/oauthplayground&grant_type=authorization_code";
+    const std::string str = "?code=%s"
+        "&client_id=436850445452-vgn3r1ac6i6o4i68amnsd9qhjk9gam9d.apps.googleusercontent.com"
+        "&client_secret=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"
+        "&redirect_uri=https://developers.google.com/oauthplayground&grant_type=authorization_code";
     boost::format fmt = boost::format(str) % code;
-    auto result = Get("https://www.googleapis.com/oauth2/v3/token", boost::str(fmt));
+    auto result = Get("https://oauth2.googleapis.com/token", boost::str(fmt));
 }
 
 std::string GoogleDriveModule::Get(std::string host, std::string target)
@@ -36,7 +43,7 @@ std::string GoogleDriveModule::Get(std::string host, std::string target)
     boost::asio::ip::tcp::resolver resolver(ioc);
     boost::asio::ip::tcp::socket socket(ioc);
 
-    boost::asio::connect(socket, resolver.resolve("http://www.google.com", "80"));
+    boost::asio::connect(socket, resolver.resolve(host, "80"));
 
     http::request<http::string_body> req(http::verb::get, target, 11);
     req.set(http::field::host, host);
@@ -74,46 +81,31 @@ using boost::property_tree::write_json;
 std::string GoogleDriveModule::Post(std::string host, std::string target)
 {
     boost::asio::io_context ioc;
-    tcp::resolver resolver(ioc);
-    tcp::resolver::query query(host);
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
-    // Try each endpoint until we successfully establish a connection.
-    tcp::socket socket(ioc);
-    boost::asio::connect(socket, endpoint_iterator);
+    boost::asio::ip::tcp::resolver resolver(ioc);
+    boost::asio::ip::tcp::socket socket(ioc);
 
-    // Form the request. We specify the "Connection: close" header so that the
-    // server will close the socket after transmitting the response. This will
-    // allow us to treat all data up until the EOF as the content.
-    boost::asio::streambuf request;
-    std::ostream request_stream(&request);
+    auto const results = resolver.resolve(host, "80");
 
-    ptree root, info;
-    root.put("code", "4/0AX4XfWhWuIThMXcJkqYMvPHgDOfGgyCuDr995Yy6I9SMb5c32_xMWT5MFjLpOFUCmdeIkQ");
-    root.put("client_id", "436850445452-vgn3r1ac6i6o4i68amnsd9qhjk9gam9d.apps.googleusercontent.com");
-    info.put("client_secret", "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");
-    info.put("redirect_uri", "https://developers.google.com/oauthplayground");
-    info.put("grant_type", "authorization_code");
+    // Make the connection on the IP address we get from a lookup
+    boost::asio::connect(socket, results.begin(), results.end());
 
-    std::ostringstream buf;
-    write_json(buf, root, false);
-    std::string json = buf.str();
+    //boost::asio::connect(socket, resolver.resolve(host, "80"));
 
-    request_stream << "POST /title/ HTTP/1.1 \r\n";
-    request_stream << "Host:" << host << "\r\n";
-    request_stream << "User-Agent: C/1.0";
-    request_stream << "Content-Type: application/json; charset=utf-8 \r\n";
-    request_stream << json << "\r\n";
-    request_stream << "Accept: */*\r\n";
-    request_stream << "Connection: close\r\n\r\n";
+    http::request<http::string_body> req(http::verb::post, target, 11);
+    req.set(http::field::host, host);
+    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
-    // Send the request.
-    boost::asio::write(socket, request);
+    http::write(socket, req);
+
+    boost::beast::flat_buffer buffer;
+    http::response<http::dynamic_body> res;
+    http::read(socket, buffer, res);
+    std::string result = boost::beast::buffers_to_string(res.body().data());
 
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
 
-    return "";
-
+    return result;
 }
 
 

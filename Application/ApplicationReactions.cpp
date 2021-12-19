@@ -144,7 +144,8 @@ void CApplicationDlg::SelectElementSecondTable(NMHDR* pNMHDR, LRESULT* pResult)
 		if (file.size == L"0")
 		{
 			SecondDirectoryAddress += L"\\" + file.name;
-			UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
+			if (!Connection)
+				UpdateList(ListSecondFolder, SecondDirectoryAddress, FilesSecondList);
 			UpdateData(false);
 		}
 		else
@@ -219,6 +220,9 @@ void CApplicationDlg::SelectElementComparisonTable(NMHDR* pNMHDR, LRESULT* pResu
 void CApplicationDlg::CompareFolders()
 {
 	UpdateData(false);
+
+	if (FirstDirectoryAddress.IsEmpty() || SecondDirectoryAddress.IsEmpty())
+		return;
 
 	// Remove Spaces from end
 	int number = 0;

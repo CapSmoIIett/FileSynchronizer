@@ -96,6 +96,9 @@ class CApplicationDlg : public CDialogEx
 		afx_msg void SyncronizeGD();
 		afx_msg void GetAuthorizationCode();
 
+		afx_msg void OnOpenConnectionButton();
+		afx_msg void OnConnectionButton();
+
 protected:
 
 		// For PopupMenu
@@ -117,10 +120,12 @@ protected:
 		int ScrollPosition;
 		int ScrollMutex;
 
-		// Адрес директории
-		CString FirstDirectoryAddress;			
+		// Адрес директории		// Адрес директории
+		CString FirstDirectoryAddress;
 		CString SecondDirectoryAddress;
+
 		CString GDCode;
+		CStatic TextIP;
 
 		CListCtrl ListFirstFolder;				
 		CListCtrl ListSecondFolder;
@@ -139,6 +144,7 @@ protected:
 		BOOL RightToLeft;
 
 		BOOL ReadyToSync;
+		BOOL Connection;
 
 		CMFCButton SynchronizeLeftToRightButton;
 		CMFCButton SynchronizeRightToLeftButton;
@@ -151,5 +157,5 @@ protected:
 
 		// Результаты сравнения
 		std::vector<ComparisonResult> Comparasions;
-
+	
 };
